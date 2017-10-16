@@ -2,7 +2,7 @@ version: '3.1'
 
 services: 
   dhis2mq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3-management
     ports:
       - 5672:5672
       - 15672:15672
@@ -22,6 +22,6 @@ services:
     volumes:
       - ./data/dhis2:/home
       - ./dhis.conf:/home/dhis.conf
-    entrypoint: /wait-for -t 50000 dhis2mq:5672 -- /wait-for -t 50000 dhis2db:5432 --
+    entrypoint: /wait-for-it.sh -t 50000 dhis2mq:5672 -- /wait-for-it.sh -t 50000 dhis2db:5432 --
     command: catalina.sh run
     restart: always
