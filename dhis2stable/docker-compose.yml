@@ -1,0 +1,27 @@
+version: '3.1'
+
+services: 
+  dhis2mq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: always
+  dhis2db:
+    build: ./dhis2db
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data
+    restart: always
+  dhis2tc:
+    build: ./dhis2tc
+    depends_on: 
+      - dhis2db
+      - dhis2mq
+    ports:
+      - 8080:8080
+    volumes:
+      - ./data/dhis2:/home
+      - ./dhis.conf:/home/dhis.conf
+    entrypoint: /wait-for -t 50000 dhis2mq:5672 -- /wait-for -t 50000 dhis2db:5432 --
+    command: catalina.sh run
+    restart: always

@@ -1,0 +1,5 @@
+FROM postgres:9-alpine
+
+ENV POSTGRES_USER dhis
+ENV POSTGRES_PASSWORD dhis
+ENV POSTGRES_DB dhis
