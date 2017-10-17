@@ -8,20 +8,23 @@ services:
       - 15672:15672
     restart: always
   dhis2db:
-    build: ./dhis2db
+    image: dhis2db:latest
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-db
     volumes:
-      - ./data/pg:/var/lib/postgresql/data
+      - ./data:/var/lib/postgresql/data
     restart: always
   dhis2tc:
-    build: ./dhis2tc
+    image: dhis2tc:latest
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-tc
     depends_on: 
       - dhis2db
       - dhis2mq
     ports:
       - 8080:8080
-    volumes:
-      - ./data/dhis2:/home
-      - ./dhis.conf:/home/dhis.conf
-    entrypoint: /wait-for-it.sh -t 50000 dhis2mq:5672 -- /wait-for-it.sh -t 50000 dhis2db:5432 --
+    entrypoint: /dhis2/wait-for-it.sh -t 50000 dhis2mq:5672 -- /dhis2/wait-for-it.sh -t 50000 dhis2db:5432 --
     command: catalina.sh run
     restart: always
