@@ -143,8 +143,16 @@ services:
     depends_on:
       superset:
         condition: service_healthy
+      # Wait for analytics-trigger to finish populating the analytics_*
+      # tables, otherwise the aggregate dashboards reference views and
+      # tables that do not yet exist. analytics-trigger transitively waits
+      # on dhis2 healthy which waits on postgres healthy, so the live
+      # views.sql apply step is also covered.
+      analytics-trigger:
+        condition: service_completed_successfully
     volumes:
       - ./superset/seed_dashboard.py:/seed/seed_dashboard.py:ro
+      - ./superset/views.sql:/seed/views.sql:ro
     environment:
       SUPERSET_BASE: http://superset:8088
       SUPERSET_USER: admin
