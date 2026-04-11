@@ -1,0 +1,135 @@
+services:
+  superset-db:
+    image: postgres:16-alpine
+    container_name: superset-db
+    restart: always
+    environment:
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+      POSTGRES_DB: superset
+    volumes:
+      - superset_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset -d superset"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  superset-redis:
+    image: redis:7-alpine
+    container_name: superset-redis
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  superset-init:
+    image: dhis2-docker-superset:4.1.1
+    build:
+      context: .
+      dockerfile: Dockerfile.superset
+    container_name: superset-init
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      superset-redis:
+        condition: service_healthy
+    volumes:
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    environment:
+      SUPERSET_SECRET_KEY: dev-secret-key-change-me-for-anything-real
+      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://superset:superset@superset-db:5432/superset
+      REDIS_HOST: superset-redis
+      REDIS_PORT: "6379"
+      SUPERSET_LOAD_EXAMPLES: "no"
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        echo '>>> running superset db upgrade'
+        superset db upgrade
+        echo '>>> creating admin user (admin/admin)'
+        superset fab create-admin \
+          --username admin \
+          --firstname Admin \
+          --lastname User \
+          --email admin@local \
+          --password admin || true
+        echo '>>> superset init (roles and permissions)'
+        superset init
+        echo '>>> registering DHIS2 database'
+        cat >/tmp/register_dhis2.py <<'PY'
+        from superset.app import create_app
+        app = create_app()
+        with app.app_context():
+            from superset.extensions import db
+            from superset.models.core import Database
+            uri = 'postgresql+psycopg2://dhis:dhis@postgresql:5432/dhis'
+            existing = db.session.query(Database).filter_by(database_name='DHIS2').first()
+            if existing:
+                existing.sqlalchemy_uri = uri
+                existing.expose_in_sqllab = True
+                print('[init] DHIS2 database connection refreshed')
+            else:
+                d = Database(database_name='DHIS2', sqlalchemy_uri=uri, expose_in_sqllab=True)
+                db.session.add(d)
+                print('[init] DHIS2 database registered')
+            db.session.commit()
+        PY
+        python /tmp/register_dhis2.py
+        echo '>>> superset init complete'
+
+  superset:
+    image: dhis2-docker-superset:4.1.1
+    build:
+      context: .
+      dockerfile: Dockerfile.superset
+    container_name: superset
+    restart: always
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    environment:
+      SUPERSET_SECRET_KEY: dev-secret-key-change-me-for-anything-real
+      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://superset:superset@superset-db:5432/superset
+      REDIS_HOST: superset-redis
+      REDIS_PORT: "6379"
+    ports:
+      - "8088:8088"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        gunicorn \
+          --bind 0.0.0.0:8088 \
+          --access-logfile - \
+          --error-logfile - \
+          --workers 4 \
+          --worker-class gthread \
+          --threads 4 \
+          --timeout 60 \
+          --keep-alive 2 \
+          "superset.app:create_app()"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  superset_db:

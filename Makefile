@@ -1,7 +1,8 @@
-.PHONY: help build run force-run down pull
+.PHONY: help pull build run run-force run-full down
 .DEFAULT_GOAL := help
 
-COMPOSE := docker compose -f compose.yml -f compose.pgadmin.yml
+COMPOSE      := docker compose -f compose.yml -f compose.pgadmin.yml
+COMPOSE_FULL := docker compose -f compose.yml -f compose.pgadmin.yml -f compose.superset.yml
 
 help: ## show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -22,7 +23,7 @@ run: ## clean start: wipe volumes + logs, then start the stack
 	@echo ">>> Starting stack"
 	$(COMPOSE) up --remove-orphans
 
-force-run: ## wipe volumes + logs, rebuild from scratch, and start
+run-force: ## wipe volumes + logs, rebuild images from scratch, and start
 	@echo ">>> Wiping logs"
 	rm -rf home/logs/*
 	@echo ">>> Tearing down volumes"
@@ -32,6 +33,14 @@ force-run: ## wipe volumes + logs, rebuild from scratch, and start
 	@echo ">>> Starting stack"
 	$(COMPOSE) up --remove-orphans
 
-down: ## stop the stack (keeps volumes)
+run-full: ## clean start of the full stack including Superset BI (UI on :8088)
+	@echo ">>> Wiping logs"
+	rm -rf home/logs/*
+	@echo ">>> Tearing down volumes"
+	$(COMPOSE_FULL) down -v
+	@echo ">>> Starting full stack (with Superset)"
+	$(COMPOSE_FULL) up --remove-orphans
+
+down: ## stop the stack (keeps volumes; covers both plain and full)
 	@echo ">>> Stopping stack"
-	$(COMPOSE) down
+	$(COMPOSE_FULL) down

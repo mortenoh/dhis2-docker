@@ -19,6 +19,8 @@ Local DHIS2 development stack: **PostgreSQL + DHIS2 + Glowroot APM + pgAdmin**, 
 | `pgadmin4` | `dpage/pgadmin4:latest` | Pre-configured browser-based DB client |
 | `analytics-trigger` | `curlimages/curl:latest` | One-shot: hits `/api/resourceTables/analytics` after DHIS2 becomes healthy, polls to completion |
 
+Plus an optional [Superset BI overlay](#optional-superset-bi-overlay) brought up with `make run-full` (adds postgres + redis + superset web + init sidecar).
+
 ## Prerequisites
 
 - **Docker Desktop** with **at least 12 GB** memory allocated (16 GB recommended). DHIS2 needs ~5 GB just for the analytics populate phase, and starving the Docker Desktop VM will get the JVM SIGKILL'd mid-populate.
@@ -86,14 +88,51 @@ If you want to add more servers, either (a) do it in the UI and accept that they
 
 ```
 make run         clean start: wipe volumes + logs, then start the stack
-make force-run   wipe volumes + logs, rebuild images from scratch, and start
+make run-force   wipe volumes + logs, rebuild images from scratch, and start
+make run-full    clean start of the full stack including Superset BI (UI on :8088)
 make build       build images (no cache bust)
 make pull        pull latest images from Docker Hub
-make down        stop the stack (keeps volumes)
+make down        stop the stack (keeps volumes; covers both plain and full)
 make help        show this help
 ```
 
-`make run` is the right default — it reuses cached image layers so the build step is ~instant, but still wipes the postgres volume for a clean DB. Use `make force-run` only when you've edited `Dockerfile` and need `--no-cache`, since it adds several minutes to re-run `apt-get upgrade` from scratch.
+`make run` is the right default — it reuses cached image layers so the build step is ~instant, but still wipes the postgres volume for a clean DB. Use `make run-force` only when you've edited `Dockerfile` and need `--no-cache`, since it adds several minutes to re-run `apt-get upgrade` from scratch. Use `make run-full` when you want the Superset BI overlay on top (see [Optional: Superset BI overlay](#optional-superset-bi-overlay)).
+
+## Optional: Superset BI overlay
+
+For ad-hoc BI work, dashboards, and exploratory queries against the DHIS2 `analytics_*` tables, there's a `compose.superset.yml` overlay that adds a full [Apache Superset](https://superset.apache.org/) stack. It stays out of the default `make run` because it adds 4 containers and ~1.5 GB of RAM — bring it up with `make run-full` only when you actually want it.
+
+```bash
+make run-full
+```
+
+This starts everything `make run` starts plus:
+
+| Service | Image | Purpose |
+|---|---|---|
+| `superset-db` | `postgres:16-alpine` | Superset's own metadata DB (dashboards, queries, users) — separate from DHIS2's postgres |
+| `superset-redis` | `redis:7-alpine` | Superset cache |
+| `superset-init` | custom (`apache/superset:4.1.1` + `psycopg2-binary`) | One-shot: runs `superset db upgrade`, creates the admin user, and registers the DHIS2 postgres as a Superset database connection |
+| `superset` | custom (`apache/superset:4.1.1` + `psycopg2-binary`) | Superset web UI on port `8088` |
+
+> Superset's slim production image (`apache/superset:4.1.1`) only ships with the SQLite driver. `Dockerfile.superset` layers `psycopg2-binary` on top so we can connect to the DHIS2 postgres. A shared `superset/superset_config.py` is bind-mounted into every Superset container so they all point at the same metadata DB and cache.
+
+### Accessing Superset — http://localhost:8088
+
+Log in as `admin` / `admin`. The DHIS2 database is already registered — find it under **Settings > Database Connections** as `DHIS2`, or jump straight to **SQL > SQL Lab** and select it from the dropdown.
+
+Good starting points:
+
+1. **SQL Lab** — paste any query from [analytics.md](analytics.md) and run it. Save results as a Dataset to build charts on top.
+2. **Datasets > + Dataset** — register `analytics` (the inheritance parent — gives you every year in one dataset) or `analytics_event_<program_uid>` directly.
+3. **Time dimensions** — use `pestartdate` / `peenddate` on `analytics`, or `occurreddate` on event tables.
+
+Two caveats specific to DHIS2:
+
+- **UID column names.** DHIS2 encodes data elements and attributes as 11-char UIDs (`LBwVBieQt45`, `ArEmgSwTzli`, etc). Superset will show them as-is. You can either override column labels per dataset in the Superset UI, or create curated SQL views that join against `analytics_rs_dataelementstructure` / `analytics_rs_orgunitstructure` for friendly column names — SQL Lab lets you save any query as a dataset, so this is quick.
+- **Metadata persistence.** Superset's metadata DB (`superset_db` volume) is wiped by `make run-full`'s `down -v`. If you build dashboards you want to keep, export them via Superset's built-in YAML export before re-running — or switch to `$(COMPOSE_FULL) up` directly (skipping the `down -v`) to preserve state between restarts.
+
+> **Warning** — local dev only. Superset's admin/admin login is on port 8088 with no auth hardening. Never expose this port on a shared machine or network.
 
 ## Password reset
 
@@ -143,6 +182,9 @@ The installer is idempotent: if `home/glowroot/glowroot.jar` already exists, it 
 ```
 compose.yml               # base stack: postgres, glowroot-installer, dhis2, analytics-trigger
 compose.pgadmin.yml       # pgadmin4 overlay (always included by Makefile targets)
+compose.superset.yml      # Superset BI overlay (opt-in via `make run-full`)
+Dockerfile.superset       # apache/superset:4.1.1 + psycopg2-binary
+superset/superset_config.py  # shared Superset config (bind-mounted into init + web)
 Dockerfile                # postgis/postgis:17-3.4 + wal2json + python3-bcrypt
 initdb.sh                 # one-shot init: loads dump, resets passwords, enables accounts
 dhis.sql.gz               # your gzipped DHIS2 dump (gitignored)
@@ -177,7 +219,7 @@ For a walk-through of the DHIS2 `analytics_*` tables (schema, cross-verification
 
 **pgAdmin complains the server is out of date.** `pull_policy: always` on `dpage/pgadmin4:latest` refreshes the image on every `make run`, but Docker Hub's `:latest` tag occasionally lags. Pin to a specific version in `compose.pgadmin.yml` if needed.
 
-**`make force-run` takes forever.** The `--no-cache` flag re-runs `apt-get upgrade` from scratch inside the postgres image build. Use `make run` unless you've actually edited the `Dockerfile`.
+**`make run-force` takes forever.** The `--no-cache` flag re-runs `apt-get upgrade` from scratch inside the postgres image build. Use `make run` unless you've actually edited the `Dockerfile`.
 
 **Port 8080 / 4000 / 5050 already in use.** Something else is bound to one of those ports on the host. `lsof -i :8080` to find the culprit, or change the published port in the relevant compose file.
 
