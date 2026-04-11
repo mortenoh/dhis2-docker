@@ -29,13 +29,13 @@ services:
         max-file: "3"
 
   glowroot-installer:
-    image: alpine:3.20
+    image: debian:12-slim
     container_name: glowroot-installer
     volumes:
       - ./home:/opt/dhis2:rw
       - ./glowroot/admin.json:/seed/admin.json:ro
     entrypoint:
-      - sh
+      - bash
       - -c
       - |
         set -e
@@ -44,8 +44,10 @@ services:
           cp /seed/admin.json /opt/dhis2/glowroot/admin.json
           exit 0
         fi
-        echo '>>> installing curl + unzip...'
-        apk add --no-cache curl unzip >/dev/null
+        echo '>>> installing curl + unzip + ca-certificates...'
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -qq
+        apt-get install -y --no-install-recommends curl unzip ca-certificates >/dev/null
         echo '>>> downloading glowroot 0.14.6...'
         mkdir -p /tmp/gl /opt/dhis2/glowroot
         cd /tmp/gl
@@ -90,7 +92,7 @@ services:
         max-file: "3"
 
   analytics-trigger:
-    image: curlimages/curl:latest
+    image: debian:12-slim
     container_name: analytics-trigger
     environment:
       DHIS2_USER: admin
@@ -100,10 +102,13 @@ services:
         condition: service_healthy
     restart: on-failure
     entrypoint:
-      - sh
+      - bash
       - -c
       - |
         set -e
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -qq
+        apt-get install -y --no-install-recommends curl ca-certificates >/dev/null
         echo 'Waiting 20s extra to be sure...'
         sleep 20
         echo 'Triggering analytics table generation...'

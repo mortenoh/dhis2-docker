@@ -1,6 +1,6 @@
 services:
   superset-db:
-    image: postgres:16-alpine
+    image: postgres:18
     container_name: superset-db
     restart: always
     # Hold the entire Superset stack until DHIS2's analytics-trigger has
@@ -28,7 +28,7 @@ services:
         max-file: "3"
 
   superset-redis:
-    image: redis:7-alpine
+    image: redis:8
     container_name: superset-redis
     restart: always
     depends_on:
