@@ -3,6 +3,13 @@ services:
     image: postgres:16-alpine
     container_name: superset-db
     restart: always
+    # Hold the entire Superset stack until DHIS2's analytics-trigger has
+    # completed. Even the metadata stores wait, so nothing under
+    # `superset-*` boots until the data they will eventually serve actually
+    # exists.
+    depends_on:
+      analytics-trigger:
+        condition: service_completed_successfully
     environment:
       POSTGRES_USER: superset
       POSTGRES_PASSWORD: superset
@@ -24,6 +31,9 @@ services:
     image: redis:7-alpine
     container_name: superset-redis
     restart: always
+    depends_on:
+      analytics-trigger:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
