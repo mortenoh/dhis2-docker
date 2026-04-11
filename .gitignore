@@ -20,3 +20,12 @@ notes/
 .venv/
 __pycache__/
 *.pyc
+
+# Playwright MCP runtime artifacts
+.playwright-mcp/
+
+# Verification screenshots taken during sessions
+*.png
+
+# Stray uv-init placeholder
+main.py

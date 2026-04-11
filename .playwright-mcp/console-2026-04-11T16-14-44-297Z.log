@@ -1,4 +1,0 @@
-[      89ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8088/login/:0
-[     203ms] [WARNING] You should call configure(...) before calling other methods @ http://localhost:8088/static/assets/8047.85343aa9ee284c62949e.entry.js:0
-[     210ms] [WARNING] You should call configure(...) before calling other methods @ http://localhost:8088/static/assets/8047.85343aa9ee284c62949e.entry.js:0
-[   23855ms] [WARNING] You should call configure(...) before calling other methods @ http://localhost:8088/static/assets/8047.85343aa9ee284c62949e.entry.js:0
