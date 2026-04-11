@@ -1,4 +1,4 @@
-.PHONY: help pull build run run-force run-full down
+.PHONY: help pull build run run-force run-full down clean
 .DEFAULT_GOAL := help
 
 COMPOSE      := docker compose -f compose.yml -f compose.pgadmin.yml
@@ -44,3 +44,9 @@ run-full: ## clean start of the full stack including Superset BI (UI on :8088)
 down: ## stop the stack (keeps volumes; covers both plain and full)
 	@echo ">>> Stopping stack"
 	$(COMPOSE_FULL) down
+
+clean: ## nuke everything: stop containers, remove volumes, wipe logs and runtime data
+	@echo ">>> Stopping containers and removing volumes"
+	$(COMPOSE_FULL) down -v --remove-orphans
+	@echo ">>> Wiping host runtime data (logs, glowroot)"
+	rm -rf home/logs/* home/glowroot
