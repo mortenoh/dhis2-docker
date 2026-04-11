@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Database dump
+*.sql.gz
+
+# DHIS2 runtime data
+home/logs/
+home/files/
+home/glowroot/
+
+# Credentials
+.env
+home/dhis-google-auth.json
+
+# Notes
+notes/
