@@ -15,3 +15,8 @@ home/dhis-google-auth.json
 
 # Notes
 notes/
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc

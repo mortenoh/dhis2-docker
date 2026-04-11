@@ -1,0 +1,2 @@
+[     125ms] [WARNING] You should call configure(...) before calling other methods @ http://localhost:8088/static/assets/8047.85343aa9ee284c62949e.entry.js:0
+[     502ms] [WARNING] You are using a whole package of antd, please use https://www.npmjs.com/package/babel-plugin-import to reduce app bundle size. @ http://localhost:8088/static/assets/vendors.fa5a4f129e562726a1c5.entry.js:1

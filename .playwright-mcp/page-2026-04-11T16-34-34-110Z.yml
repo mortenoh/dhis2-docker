@@ -1,0 +1,577 @@
+- generic [ref=e2]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Superset" [ref=e6] [cursor=pointer]:
+          - /url: /superset/welcome/
+          - img "Superset" [ref=e7]
+        - menu [ref=e8]:
+          - button "Dashboards" [ref=e9] [cursor=pointer]
+          - button "Charts" [ref=e10] [cursor=pointer]
+          - button "Datasets" [ref=e11] [cursor=pointer]
+          - menuitem "triangle-down SQL" [ref=e12]:
+            - button "triangle-down SQL" [ref=e13] [cursor=pointer]:
+              - img "triangle-down" [ref=e14]:
+                - img [ref=e15]
+              - text: SQL
+      - menu [ref=e19]:
+        - menuitem "triangle-down +" [ref=e20]:
+          - button "triangle-down +" [ref=e21] [cursor=pointer]:
+            - img "triangle-down" [ref=e22]:
+              - img [ref=e23]
+            - generic [ref=e26]: +
+        - menuitem "triangle-down Settings" [ref=e27]:
+          - button "triangle-down Settings" [ref=e28] [cursor=pointer]:
+            - img "triangle-down" [ref=e29]:
+              - img [ref=e30]
+            - text: Settings
+  - generic [ref=e32]:
+    - button "collapse filter" [ref=e36] [cursor=pointer]:
+      - img "collapse" [ref=e37]:
+        - img [ref=e38]
+      - img "filter" [ref=e40]:
+        - img [ref=e41]
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - generic "Dashboard title" [ref=e50]: DHIS2 Population
+          - generic [ref=e51]: DHIS2 Population
+        - generic [ref=e52]:
+          - button "favorite-unselected" [ref=e53] [cursor=pointer]:
+            - img "favorite-unselected" [ref=e54]:
+              - img [ref=e55]
+          - button "Published" [ref=e57] [cursor=pointer]
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - img [ref=e60]:
+                - img [ref=e61]:
+                  - img [ref=e62]
+              - generic [ref=e64]: Admin User
+            - generic [ref=e65]:
+              - img [ref=e66]:
+                - img [ref=e67]:
+                  - img [ref=e68]
+              - generic [ref=e70]: 14 minutes ago
+      - generic [ref=e71]:
+        - button "Edit dashboard" [ref=e74] [cursor=pointer]:
+          - generic [ref=e75]: Edit dashboard
+        - button "Menu actions trigger" [ref=e77] [cursor=pointer]:
+          - img "more-horiz" [ref=e78]:
+            - img [ref=e79]
+    - tabpanel [ref=e89]:
+      - generic [ref=e91]:
+        - generic [ref=e93]:
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - link "Population — Total Records" [ref=e101] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=MImxf8deDiLxWCEhZb7J9&slice_id=14
+              - button "More Options" [ref=e103] [cursor=pointer]
+            - generic [ref=e223]:
+              - generic [ref=e224]: 461k
+              - generic [ref=e225]: matching records
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - link "Population — Reported Total" [ref=e121] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=MImxf8deDiLxWCEhZb7J9&slice_id=15
+              - button "More Options" [ref=e123] [cursor=pointer]
+            - generic [ref=e229]:
+              - generic [ref=e230]: 341M
+              - generic [ref=e231]: sum of all reported population values
+          - generic [ref=e137]:
+            - generic [ref=e138]:
+              - link "Population — Distinct Indicators" [ref=e141] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=MImxf8deDiLxWCEhZb7J9&slice_id=16
+              - button "More Options" [ref=e143] [cursor=pointer]
+            - generic [ref=e235]:
+              - generic [ref=e236]: "5"
+              - generic [ref=e237]: distinct population data elements
+        - generic [ref=e160]:
+          - link "Population — Reported Total by Year" [ref=e163] [cursor=pointer]:
+            - /url: /explore/?dashboard_page_id=MImxf8deDiLxWCEhZb7J9&slice_id=17
+          - button "More Options" [ref=e165] [cursor=pointer]
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - link "Population — Reported Total by Province" [ref=e185] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=MImxf8deDiLxWCEhZb7J9&slice_id=18
+            - button "More Options" [ref=e187] [cursor=pointer]
+          - img [ref=e249]:
+            - generic [ref=e251]:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: 13 Savannakhet
+                    - generic:
+                      - generic: 01 Vientiane Capital
+                    - generic:
+                      - generic: 16 Champasak
+                    - generic:
+                      - generic: 06 Louangphabang
+                    - generic:
+                      - generic: 10 Vientiane
+                    - generic:
+                      - generic: 14 Salavan
+                    - generic:
+                      - generic: 12 Khammouan
+                    - generic:
+                      - generic: 08 Xainyabouli
+                    - generic:
+                      - generic: 04 Oudomxai
+                    - generic:
+                      - generic: 11 Bolikhamxai
+                    - generic:
+                      - generic: 07 Houaphan
+                    - generic:
+                      - generic: 09 Xiangkhouang
+                    - generic:
+                      - generic: 05 Bokeo
+                    - generic:
+                      - generic: 03 Louangnamtha
+                    - generic:
+                      - generic: 02 Phongsali
+                    - generic:
+                      - generic: <NULL>
+                    - generic:
+                      - generic: 17 Attapu
+                    - generic:
+                      - generic: 15 Xekong
+                    - generic:
+                      - generic: 18 Xaisomboun
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: 10M
+                    - generic:
+                      - generic: 20M
+                    - generic:
+                      - generic: 30M
+                    - generic:
+                      - generic: 40M
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - link "Population — By Province and Year" [ref=e207] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=MImxf8deDiLxWCEhZb7J9&slice_id=19
+            - button "More Options" [ref=e209] [cursor=pointer]
+          - generic [ref=e280]:
+            - generic [ref=e285]:
+              - text: Search
+              - textbox "Search 100 records" [ref=e286]:
+                - /placeholder: 100 records...
+            - table [ref=e287]:
+              - row "province year people" [ref=e292]:
+                - columnheader "province" [ref=e293] [cursor=pointer]:
+                  - generic [ref=e294]:
+                    - generic [ref=e295]: province
+                    - img [ref=e296]
+                - columnheader "year" [ref=e298] [cursor=pointer]:
+                  - generic [ref=e299]:
+                    - generic [ref=e300]: year
+                    - img [ref=e301]
+                - columnheader "people" [ref=e303] [cursor=pointer]:
+                  - generic [ref=e304]:
+                    - generic [ref=e305]: people
+                    - img [ref=e306]
+              - rowgroup [ref=e312]:
+                - row "province year people" [ref=e313]:
+                  - cell "province" [ref=e314] [cursor=pointer]: N/A
+                  - cell "year" [ref=e315] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e316]: 7.75M
+                - row "province year people" [ref=e317]:
+                  - cell "province" [ref=e318] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e319] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e320]: 6.89M
+                - row "province year people" [ref=e321]:
+                  - cell "province" [ref=e322] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e323] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e324]: 6.29M
+                - row "province year people" [ref=e325]:
+                  - cell "province" [ref=e326] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e327] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e328]: 4.8M
+                - row "province year people" [ref=e329]:
+                  - cell "province" [ref=e330] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e331] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e332]: 4.53M
+                - row "province year people" [ref=e333]:
+                  - cell "province" [ref=e334] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e335] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e336]: 4.47M
+                - row "province year people" [ref=e337]:
+                  - cell "province" [ref=e338] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e339] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e340]: 4.41M
+                - row "province year people" [ref=e341]:
+                  - cell "province" [ref=e342] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e343] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e344]: 4.34M
+                - row "province year people" [ref=e345]:
+                  - cell "province" [ref=e346] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e347] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e348]: 4.28M
+                - row "province year people" [ref=e349]:
+                  - cell "province" [ref=e350] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e351] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e352]: 4.22M
+                - row "province year people" [ref=e353]:
+                  - cell "province" [ref=e354] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e355] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e356]: 4.15M
+                - row "province year people" [ref=e357]:
+                  - cell "province" [ref=e358] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e359] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e360]: 4.12M
+                - row "province year people" [ref=e361]:
+                  - cell "province" [ref=e362] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e363] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e364]: 4.08M
+                - row "province year people" [ref=e365]:
+                  - cell "province" [ref=e366] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e367] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e368]: 4.04M
+                - row "province year people" [ref=e369]:
+                  - cell "province" [ref=e370] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e371] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e372]: 4.02M
+                - row "province year people" [ref=e373]:
+                  - cell "province" [ref=e374] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e375] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e376]: 3.96M
+                - row "province year people" [ref=e377]:
+                  - cell "province" [ref=e378] [cursor=pointer]: 13 Savannakhet
+                  - cell "year" [ref=e379] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e380]: 3.95M
+                - row "province year people" [ref=e381]:
+                  - cell "province" [ref=e382] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e383] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e384]: 3.88M
+                - row "province year people" [ref=e385]:
+                  - cell "province" [ref=e386] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e387] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e388]: 3.79M
+                - row "province year people" [ref=e389]:
+                  - cell "province" [ref=e390] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e391] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e392]: 3.71M
+                - row "province year people" [ref=e393]:
+                  - cell "province" [ref=e394] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e395] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e396]: 3.63M
+                - row "province year people" [ref=e397]:
+                  - cell "province" [ref=e398] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e399] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e400]: 3.54M
+                - row "province year people" [ref=e401]:
+                  - cell "province" [ref=e402] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e403] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e404]: 3.46M
+                - row "province year people" [ref=e405]:
+                  - cell "province" [ref=e406] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "year" [ref=e407] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e408]: 3.38M
+                - row "province year people" [ref=e409]:
+                  - cell "province" [ref=e410] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e411] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e412]: 3.16M
+                - row "province year people" [ref=e413]:
+                  - cell "province" [ref=e414] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e415] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e416]: 3.12M
+                - row "province year people" [ref=e417]:
+                  - cell "province" [ref=e418] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e419] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e420]: 3.09M
+                - row "province year people" [ref=e421]:
+                  - cell "province" [ref=e422] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e423] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e424]: 3.05M
+                - row "province year people" [ref=e425]:
+                  - cell "province" [ref=e426] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e427] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e428]: 3.01M
+                - row "province year people" [ref=e429]:
+                  - cell "province" [ref=e430] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e431] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e432]: 2.97M
+                - row "province year people" [ref=e433]:
+                  - cell "province" [ref=e434] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e435] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e436]: 2.94M
+                - row "province year people" [ref=e437]:
+                  - cell "province" [ref=e438] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e439] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e440]: 2.93M
+                - row "province year people" [ref=e441]:
+                  - cell "province" [ref=e442] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e443] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e444]: 2.9M
+                - row "province year people" [ref=e445]:
+                  - cell "province" [ref=e446] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e447] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e448]: 2.89M
+                - row "province year people" [ref=e449]:
+                  - cell "province" [ref=e450] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e451] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e452]: 2.88M
+                - row "province year people" [ref=e453]:
+                  - cell "province" [ref=e454] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e455] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e456]: 2.86M
+                - row "province year people" [ref=e457]:
+                  - cell "province" [ref=e458] [cursor=pointer]: 16 Champasak
+                  - cell "year" [ref=e459] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e460]: 2.82M
+                - row "province year people" [ref=e461]:
+                  - cell "province" [ref=e462] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e463] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e464]: 2.77M
+                - row "province year people" [ref=e465]:
+                  - cell "province" [ref=e466] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e467] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e468]: 2.69M
+                - row "province year people" [ref=e469]:
+                  - cell "province" [ref=e470] [cursor=pointer]: 04 Oudomxai
+                  - cell "year" [ref=e471] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e472]: 2.22M
+                - row "province year people" [ref=e473]:
+                  - cell "province" [ref=e474] [cursor=pointer]: 11 Bolikhamxai
+                  - cell "year" [ref=e475] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e476]: 2.04M
+                - row "province year people" [ref=e477]:
+                  - cell "province" [ref=e478] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e479] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e480]: 1.94M
+                - row "province year people" [ref=e481]:
+                  - cell "province" [ref=e482] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e483] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e484]: 1.92M
+                - row "province year people" [ref=e485]:
+                  - cell "province" [ref=e486] [cursor=pointer]: 07 Houaphan
+                  - cell "year" [ref=e487] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e488]: 1.92M
+                - row "province year people" [ref=e489]:
+                  - cell "province" [ref=e490] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e491] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e492]: 1.92M
+                - row "province year people" [ref=e493]:
+                  - cell "province" [ref=e494] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e495] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e496]: 1.91M
+                - row "province year people" [ref=e497]:
+                  - cell "province" [ref=e498] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e499] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e500]: 1.9M
+                - row "province year people" [ref=e501]:
+                  - cell "province" [ref=e502] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e503] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e504]: 1.89M
+                - row "province year people" [ref=e505]:
+                  - cell "province" [ref=e506] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e507] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e508]: 1.89M
+                - row "province year people" [ref=e509]:
+                  - cell "province" [ref=e510] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e511] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e512]: 1.88M
+                - row "province year people" [ref=e513]:
+                  - cell "province" [ref=e514] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e515] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e516]: 1.87M
+                - row "province year people" [ref=e517]:
+                  - cell "province" [ref=e518] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e519] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e520]: 1.87M
+                - row "province year people" [ref=e521]:
+                  - cell "province" [ref=e522] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e523] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e524]: 1.86M
+                - row "province year people" [ref=e525]:
+                  - cell "province" [ref=e526] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e527] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e528]: 1.85M
+                - row "province year people" [ref=e529]:
+                  - cell "province" [ref=e530] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e531] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e532]: 1.85M
+                - row "province year people" [ref=e533]:
+                  - cell "province" [ref=e534] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e535] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e536]: 1.84M
+                - row "province year people" [ref=e537]:
+                  - cell "province" [ref=e538] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e539] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e540]: 1.83M
+                - row "province year people" [ref=e541]:
+                  - cell "province" [ref=e542] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e543] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e544]: 1.83M
+                - row "province year people" [ref=e545]:
+                  - cell "province" [ref=e546] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e547] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e548]: 1.83M
+                - row "province year people" [ref=e549]:
+                  - cell "province" [ref=e550] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e551] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e552]: 1.82M
+                - row "province year people" [ref=e553]:
+                  - cell "province" [ref=e554] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e555] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e556]: 1.81M
+                - row "province year people" [ref=e557]:
+                  - cell "province" [ref=e558] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e559] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e560]: 1.8M
+                - row "province year people" [ref=e561]:
+                  - cell "province" [ref=e562] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e563] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e564]: 1.8M
+                - row "province year people" [ref=e565]:
+                  - cell "province" [ref=e566] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e567] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e568]: 1.8M
+                - row "province year people" [ref=e569]:
+                  - cell "province" [ref=e570] [cursor=pointer]: 06 Louangphabang
+                  - cell "year" [ref=e571] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e572]: 1.78M
+                - row "province year people" [ref=e573]:
+                  - cell "province" [ref=e574] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e575] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e576]: 1.78M
+                - row "province year people" [ref=e577]:
+                  - cell "province" [ref=e578] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e579] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e580]: 1.78M
+                - row "province year people" [ref=e581]:
+                  - cell "province" [ref=e582] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e583] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e584]: 1.78M
+                - row "province year people" [ref=e585]:
+                  - cell "province" [ref=e586] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e587] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e588]: 1.77M
+                - row "province year people" [ref=e589]:
+                  - cell "province" [ref=e590] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e591] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e592]: 1.76M
+                - row "province year people" [ref=e593]:
+                  - cell "province" [ref=e594] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e595] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e596]: 1.76M
+                - row "province year people" [ref=e597]:
+                  - cell "province" [ref=e598] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e599] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e600]: 1.75M
+                - row "province year people" [ref=e601]:
+                  - cell "province" [ref=e602] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e603] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e604]: 1.74M
+                - row "province year people" [ref=e605]:
+                  - cell "province" [ref=e606] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e607] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e608]: 1.74M
+                - row "province year people" [ref=e609]:
+                  - cell "province" [ref=e610] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e611] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e612]: 1.73M
+                - row "province year people" [ref=e613]:
+                  - cell "province" [ref=e614] [cursor=pointer]: 10 Vientiane
+                  - cell "year" [ref=e615] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e616]: 1.73M
+                - row "province year people" [ref=e617]:
+                  - cell "province" [ref=e618] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e619] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e620]: 1.72M
+                - row "province year people" [ref=e621]:
+                  - cell "province" [ref=e622] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e623] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e624]: 1.71M
+                - row "province year people" [ref=e625]:
+                  - cell "province" [ref=e626] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e627] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e628]: 1.71M
+                - row "province year people" [ref=e629]:
+                  - cell "province" [ref=e630] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e631] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e632]: 1.69M
+                - row "province year people" [ref=e633]:
+                  - cell "province" [ref=e634] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e635] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e636]: 1.68M
+                - row "province year people" [ref=e637]:
+                  - cell "province" [ref=e638] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e639] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e640]: 1.68M
+                - row "province year people" [ref=e641]:
+                  - cell "province" [ref=e642] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e643] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e644]: 1.67M
+                - row "province year people" [ref=e645]:
+                  - cell "province" [ref=e646] [cursor=pointer]: 09 Xiangkhouang
+                  - cell "year" [ref=e647] [cursor=pointer]: "2025"
+                  - cell "people" [ref=e648]: 1.67M
+                - row "province year people" [ref=e649]:
+                  - cell "province" [ref=e650] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e651] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e652]: 1.66M
+                - row "province year people" [ref=e653]:
+                  - cell "province" [ref=e654] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e655] [cursor=pointer]: "2018"
+                  - cell "people" [ref=e656]: 1.65M
+                - row "province year people" [ref=e657]:
+                  - cell "province" [ref=e658] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e659] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e660]: 1.65M
+                - row "province year people" [ref=e661]:
+                  - cell "province" [ref=e662] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e663] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e664]: 1.63M
+                - row "province year people" [ref=e665]:
+                  - cell "province" [ref=e666] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e667] [cursor=pointer]: "2017"
+                  - cell "people" [ref=e668]: 1.62M
+                - row "province year people" [ref=e669]:
+                  - cell "province" [ref=e670] [cursor=pointer]: 14 Salavan
+                  - cell "year" [ref=e671] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e672]: 1.61M
+                - row "province year people" [ref=e673]:
+                  - cell "province" [ref=e674] [cursor=pointer]: 12 Khammouan
+                  - cell "year" [ref=e675] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e676]: 1.6M
+                - row "province year people" [ref=e677]:
+                  - cell "province" [ref=e678] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e679] [cursor=pointer]: "2016"
+                  - cell "people" [ref=e680]: 1.6M
+                - row "province year people" [ref=e681]:
+                  - cell "province" [ref=e682] [cursor=pointer]: 08 Xainyabouli
+                  - cell "year" [ref=e683] [cursor=pointer]: "2015"
+                  - cell "people" [ref=e684]: 1.57M
+                - row "province year people" [ref=e685]:
+                  - cell "province" [ref=e686] [cursor=pointer]: 04 Oudomxai
+                  - cell "year" [ref=e687] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e688]: 1.46M
+                - row "province year people" [ref=e689]:
+                  - cell "province" [ref=e690] [cursor=pointer]: 04 Oudomxai
+                  - cell "year" [ref=e691] [cursor=pointer]: "2023"
+                  - cell "people" [ref=e692]: 1.44M
+                - row "province year people" [ref=e693]:
+                  - cell "province" [ref=e694] [cursor=pointer]: 04 Oudomxai
+                  - cell "year" [ref=e695] [cursor=pointer]: "2022"
+                  - cell "people" [ref=e696]: 1.42M
+                - row "province year people" [ref=e697]:
+                  - cell "province" [ref=e698] [cursor=pointer]: 04 Oudomxai
+                  - cell "year" [ref=e699] [cursor=pointer]: "2021"
+                  - cell "people" [ref=e700]: 1.4M
+                - row "province year people" [ref=e701]:
+                  - cell "province" [ref=e702] [cursor=pointer]: 04 Oudomxai
+                  - cell "year" [ref=e703] [cursor=pointer]: "2020"
+                  - cell "people" [ref=e704]: 1.38M
+                - row "province year people" [ref=e705]:
+                  - cell "province" [ref=e706] [cursor=pointer]: 04 Oudomxai
+                  - cell "year" [ref=e707] [cursor=pointer]: "2019"
+                  - cell "people" [ref=e708]: 1.36M
+                - row "province year people" [ref=e709]:
+                  - cell "province" [ref=e710] [cursor=pointer]: 11 Bolikhamxai
+                  - cell "year" [ref=e711] [cursor=pointer]: "2024"
+                  - cell "people" [ref=e712]: 1.34M

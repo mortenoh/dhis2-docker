@@ -100,7 +100,9 @@ make help        show this help
 
 ## Optional: Superset BI overlay
 
-For ad-hoc BI work, dashboards, and exploratory queries against the DHIS2 `analytics_*` tables, there's a `compose.superset.yml` overlay that adds a full [Apache Superset](https://superset.apache.org/) stack. It stays out of the default `make run` because it adds 4 containers and ~1.5 GB of RAM — bring it up with `make run-full` only when you actually want it.
+For ad-hoc BI work, dashboards, and exploratory queries against the DHIS2 `analytics_*` tables, there's a `compose.superset.yml` overlay that adds a full [Apache Superset](https://superset.apache.org/) stack — including **four pre-built dashboards** auto-seeded on first launch (Aggregate Overview, Climate, Population, Disease Surveillance). It stays out of the default `make run` because it adds 5 containers and ~1.5 GB of RAM — bring it up with `make run-full` only when you actually want it.
+
+See [SUPERSET.md](SUPERSET.md) for a full tour of the Superset overlay: what each dashboard does, how the seeding works, how to add your own charts, common gotchas, and a SQL Lab walk-through.
 
 ```bash
 make run-full
@@ -112,8 +114,9 @@ This starts everything `make run` starts plus:
 |---|---|---|
 | `superset-db` | `postgres:16-alpine` | Superset's own metadata DB (dashboards, queries, users) — separate from DHIS2's postgres |
 | `superset-redis` | `redis:7-alpine` | Superset cache |
-| `superset-init` | custom (`apache/superset:4.1.1` + `psycopg2-binary`) | One-shot: runs `superset db upgrade`, creates the admin user, and registers the DHIS2 postgres as a Superset database connection |
-| `superset` | custom (`apache/superset:4.1.1` + `psycopg2-binary`) | Superset web UI on port `8088` |
+| `superset-init` | custom (`apache/superset:4.1.1` + `psycopg2-binary` + `httpx`) | One-shot: runs `superset db upgrade`, creates the admin user, and registers the DHIS2 postgres as a Superset database connection |
+| `superset` | same custom image | Superset web UI on port `8088` |
+| `superset-seed` | same custom image | One-shot: runs `superset/seed_dashboard.py` once the web service is healthy, creating the dataset, charts, and four dashboards |
 
 > Superset's slim production image (`apache/superset:4.1.1`) only ships with the SQLite driver. `Dockerfile.superset` layers `psycopg2-binary` on top so we can connect to the DHIS2 postgres. A shared `superset/superset_config.py` is bind-mounted into every Superset container so they all point at the same metadata DB and cache.
 
@@ -183,8 +186,11 @@ The installer is idempotent: if `home/glowroot/glowroot.jar` already exists, it 
 compose.yml               # base stack: postgres, glowroot-installer, dhis2, analytics-trigger
 compose.pgadmin.yml       # pgadmin4 overlay (always included by Makefile targets)
 compose.superset.yml      # Superset BI overlay (opt-in via `make run-full`)
-Dockerfile.superset       # apache/superset:4.1.1 + psycopg2-binary
-superset/superset_config.py  # shared Superset config (bind-mounted into init + web)
+Dockerfile.superset       # apache/superset:4.1.1 + psycopg2-binary + httpx
+superset/superset_config.py  # shared Superset config (bind-mounted into all superset services)
+superset/seed_dashboard.py   # declarative dashboard registry, run by superset-seed sidecar
+SUPERSET.md               # full tour of the Superset overlay
+pyproject.toml / .python-version  # uv workspace (for running seed_dashboard.py from host)
 Dockerfile                # postgis/postgis:17-3.4 + wal2json + python3-bcrypt
 initdb.sh                 # one-shot init: loads dump, resets passwords, enables accounts
 dhis.sql.gz               # your gzipped DHIS2 dump (gitignored)

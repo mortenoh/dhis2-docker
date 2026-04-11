@@ -1,0 +1,128 @@
+- generic [ref=e2]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Superset" [ref=e6] [cursor=pointer]:
+          - /url: /superset/welcome/
+          - img "Superset" [ref=e7]
+        - menu [ref=e8]:
+          - button "Dashboards" [ref=e9] [cursor=pointer]
+          - button "Charts" [ref=e10] [cursor=pointer]
+          - button "Datasets" [ref=e11] [cursor=pointer]
+          - menuitem "triangle-down SQL" [ref=e12]:
+            - button "triangle-down SQL" [ref=e13] [cursor=pointer]:
+              - img "triangle-down" [ref=e14]:
+                - img [ref=e15]
+              - text: SQL
+      - menu [ref=e19]:
+        - menuitem "triangle-down +" [ref=e20]:
+          - button "triangle-down +" [ref=e21] [cursor=pointer]:
+            - img "triangle-down" [ref=e22]:
+              - img [ref=e23]
+            - generic [ref=e26]: +
+        - menuitem "triangle-down Settings" [ref=e27]:
+          - button "triangle-down Settings" [ref=e28] [cursor=pointer]:
+            - img "triangle-down" [ref=e29]:
+              - img [ref=e30]
+            - text: Settings
+  - generic [ref=e32]:
+    - button "collapse filter" [ref=e36] [cursor=pointer]:
+      - img "collapse" [ref=e37]:
+        - img [ref=e38]
+      - img "filter" [ref=e40]:
+        - img [ref=e41]
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - generic "Dashboard title" [ref=e50]: DHIS2 Live Data
+          - generic [ref=e51]: DHIS2 Live Data
+        - generic [ref=e52]:
+          - button "favorite-unselected" [ref=e53] [cursor=pointer]:
+            - img "favorite-unselected" [ref=e54]:
+              - img [ref=e55]
+          - button "Published" [ref=e57] [cursor=pointer]
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - img [ref=e60]:
+                - img [ref=e61]:
+                  - img [ref=e62]
+              - generic [ref=e64]: Admin User
+            - generic [ref=e65]:
+              - img [ref=e66]:
+                - img [ref=e67]:
+                  - img [ref=e68]
+              - generic [ref=e70]: 4 minutes ago
+      - generic [ref=e71]:
+        - button "Edit dashboard" [ref=e74] [cursor=pointer]:
+          - generic [ref=e75]: Edit dashboard
+        - button "Menu actions trigger" [ref=e77] [cursor=pointer]:
+          - img "more-horiz" [ref=e78]:
+            - img [ref=e79]
+    - tabpanel [ref=e89]:
+      - generic [ref=e91]:
+        - generic [ref=e93]:
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - link "Live — Total Data Values" [ref=e101] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=26
+              - button "More Options" [ref=e103] [cursor=pointer]
+            - generic [ref=e111]:
+              - status "Loading" [ref=e112]
+              - generic [ref=e113]: Waiting on DHIS2
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - link "Live — Total Events" [ref=e121] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=27
+              - button "More Options" [ref=e123] [cursor=pointer]
+            - generic [ref=e131]:
+              - status "Loading" [ref=e132]
+              - generic [ref=e133]: Waiting on DHIS2
+          - generic [ref=e137]:
+            - generic [ref=e138]:
+              - link "Live — Total Enrollments" [ref=e141] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=28
+              - button "More Options" [ref=e143] [cursor=pointer]
+            - generic [ref=e151]:
+              - status "Loading" [ref=e152]
+              - generic [ref=e153]: Waiting on DHIS2
+        - generic [ref=e159]:
+          - generic [ref=e160]:
+            - link "Live — Data Values per Year" [ref=e163] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=29
+            - button "More Options" [ref=e165] [cursor=pointer]
+          - generic [ref=e173]:
+            - status "Loading" [ref=e174]
+            - generic [ref=e175]: Waiting on DHIS2
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - link "Live — Top 15 Data Elements (live)" [ref=e185] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=30
+            - button "More Options" [ref=e187] [cursor=pointer]
+          - generic [ref=e195]:
+            - status "Loading" [ref=e196]
+            - generic [ref=e197]: Waiting on DHIS2
+        - generic [ref=e199]:
+          - generic [ref=e203]:
+            - generic [ref=e204]:
+              - link "Live — Events by Program" [ref=e207] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=31
+              - button "More Options" [ref=e209] [cursor=pointer]
+            - generic [ref=e217]:
+              - status "Loading" [ref=e218]
+              - generic [ref=e219]: Waiting on DHIS2
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - link "Live — Events per Month" [ref=e227] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=32
+              - button "More Options" [ref=e229] [cursor=pointer]
+            - generic [ref=e237]:
+              - status "Loading" [ref=e238]
+              - generic [ref=e239]: Waiting on DHIS2
+        - generic [ref=e245]:
+          - generic [ref=e246]:
+            - link "Live — Most Recent Data Value Updates" [ref=e249] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=vJoInq90V6aX7lsASHiio&slice_id=33
+            - button "More Options" [ref=e251] [cursor=pointer]
+          - generic [ref=e259]:
+            - status "Loading" [ref=e260]
+            - generic [ref=e261]: Waiting on DHIS2

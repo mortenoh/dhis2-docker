@@ -1,0 +1,468 @@
+- generic [ref=e2]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Superset" [ref=e6] [cursor=pointer]:
+          - /url: /superset/welcome/
+          - img "Superset" [ref=e7]
+        - menu [ref=e8]:
+          - button "Dashboards" [ref=e9] [cursor=pointer]
+          - button "Charts" [ref=e10] [cursor=pointer]
+          - button "Datasets" [ref=e11] [cursor=pointer]
+          - menuitem "triangle-down SQL" [ref=e12]:
+            - button "triangle-down SQL" [ref=e13] [cursor=pointer]:
+              - img "triangle-down" [ref=e14]:
+                - img [ref=e15]
+              - text: SQL
+      - menu [ref=e19]:
+        - menuitem "triangle-down +" [ref=e20]:
+          - button "triangle-down +" [ref=e21] [cursor=pointer]:
+            - img "triangle-down" [ref=e22]:
+              - img [ref=e23]
+            - generic [ref=e26]: +
+        - menuitem "triangle-down Settings" [ref=e27]:
+          - button "triangle-down Settings" [ref=e28] [cursor=pointer]:
+            - img "triangle-down" [ref=e29]:
+              - img [ref=e30]
+            - text: Settings
+  - generic [ref=e32]:
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - generic [ref=e40]: Filters
+          - button "gear" [ref=e43] [cursor=pointer]:
+            - img "gear" [ref=e44]:
+              - img [ref=e45]
+          - button "expand" [ref=e47] [cursor=pointer]:
+            - img "expand" [ref=e48]:
+              - img [ref=e49]
+        - button "plus-small Add/Edit Filters" [ref=e52] [cursor=pointer]:
+          - img "plus-small" [ref=e53]:
+            - img [ref=e54]
+          - generic [ref=e56]: Add/Edit Filters
+      - generic "Time range" [ref=e284]:
+        - heading "Time range" [level=4] [ref=e288]
+        - generic [ref=e297] [cursor=pointer]:
+          - generic [ref=e298]: No filter
+          - img [ref=e299]:
+            - img [ref=e300]:
+              - img [ref=e301]
+      - generic:
+        - button "Apply filters" [ref=e303] [cursor=pointer]:
+          - generic [ref=e304]: Apply filters
+        - button "Clear all" [disabled]:
+          - generic: Clear all
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic "Dashboard title" [ref=e68]: DHIS2 Live Data
+          - generic [ref=e69]: DHIS2 Live Data
+        - generic [ref=e70]:
+          - button "favorite-unselected" [ref=e71] [cursor=pointer]:
+            - img "favorite-unselected" [ref=e72]:
+              - img [ref=e73]
+          - button "Published" [ref=e75] [cursor=pointer]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - img [ref=e78]:
+                - img [ref=e79]:
+                  - img [ref=e80]
+              - generic [ref=e82]: Admin User
+            - generic [ref=e83]:
+              - img [ref=e84]:
+                - img [ref=e85]:
+                  - img [ref=e86]
+              - generic [ref=e88]: 9 seconds ago
+      - generic [ref=e89]:
+        - button "Edit dashboard" [ref=e92] [cursor=pointer]:
+          - generic [ref=e93]: Edit dashboard
+        - button "Menu actions trigger" [ref=e95] [cursor=pointer]:
+          - img "more-horiz" [ref=e96]:
+            - img [ref=e97]
+    - tabpanel [ref=e107]:
+      - generic [ref=e109]:
+        - generic [ref=e111]:
+          - generic [ref=e115]:
+            - generic [ref=e116]:
+              - link "Live — Total Data Values" [ref=e119] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=26
+              - generic [ref=e120]:
+                - button "Applied filters (1)" [ref=e305] [cursor=pointer]:
+                  - img "filter" [ref=e306]:
+                    - img [ref=e307]
+                  - superscript [ref=e310]:
+                    - generic [ref=e312]: "1"
+                - button "More Options" [ref=e121] [cursor=pointer]
+            - generic [ref=e316]:
+              - generic [ref=e317]: 1.29M
+              - generic [ref=e318]: rows in datavalue (live)
+          - generic [ref=e135]:
+            - generic [ref=e136]:
+              - link "Live — Total Events" [ref=e139] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=27
+              - generic [ref=e140]:
+                - button "Applied filters (1)" [ref=e319] [cursor=pointer]:
+                  - img "filter" [ref=e320]:
+                    - img [ref=e321]
+                  - superscript [ref=e324]:
+                    - generic [ref=e326]: "1"
+                - button "More Options" [ref=e141] [cursor=pointer]
+            - generic [ref=e330]:
+              - generic [ref=e331]: 182k
+              - generic [ref=e332]: rows in event (live)
+          - generic [ref=e155]:
+            - generic [ref=e156]:
+              - link "Live — Total Enrollments" [ref=e159] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=28
+              - generic [ref=e160]:
+                - button "Applied filters (1)" [ref=e333] [cursor=pointer]:
+                  - img "filter" [ref=e334]:
+                    - img [ref=e335]
+                  - superscript [ref=e338]:
+                    - generic [ref=e340]: "1"
+                - button "More Options" [ref=e161] [cursor=pointer]
+            - generic [ref=e344]:
+              - generic [ref=e345]: "2"
+              - generic [ref=e346]: rows in enrollment (live)
+        - generic [ref=e178]:
+          - link "Live — Data Values per Year" [ref=e181] [cursor=pointer]:
+            - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=29
+          - generic [ref=e182]:
+            - button "Applied filters (1)" [ref=e347] [cursor=pointer]:
+              - img "filter" [ref=e348]:
+                - img [ref=e349]
+              - superscript [ref=e352]:
+                - generic [ref=e354]: "1"
+            - button "More Options" [ref=e183] [cursor=pointer]
+        - generic [ref=e199]:
+          - generic [ref=e200]:
+            - link "Live — Top 15 Data Elements (live)" [ref=e203] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=30
+            - generic [ref=e204]:
+              - button "Applied filters (1)" [ref=e361] [cursor=pointer]:
+                - img "filter" [ref=e362]:
+                  - img [ref=e363]
+                - superscript [ref=e366]:
+                  - generic [ref=e368]: "1"
+              - button "More Options" [ref=e205] [cursor=pointer]
+          - img [ref=e374]:
+            - generic [ref=e376]:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: "LSB: Population (Estimated-single age)"
+                    - generic:
+                      - generic: Climate-Temperature avg
+                    - generic:
+                      - generic: Climate-Temperature min
+                    - generic:
+                      - generic: Climate-Rainfall
+                    - generic:
+                      - generic: Climate-Temperature max
+                    - generic:
+                      - generic: Air temperature (ERA5-Land)
+                    - generic:
+                      - generic: Precipitation (ERA5-Land)
+                    - generic:
+                      - generic: "NCLE: 17. Severe Acute Respiratory Infec…"
+                    - generic:
+                      - generic: "NCLE: 7. Dengue cases (any)"
+                    - generic:
+                      - generic: Precipitation (CHIRPS)
+                    - generic:
+                      - generic: Average humidity (AirGradient)
+                    - generic:
+                      - generic: Average temperature (AirGradient)
+                    - generic:
+                      - generic: Maximum humidity (AirGradient)
+                    - generic:
+                      - generic: Maximum temperature (AirGradient)
+                    - generic:
+                      - generic: Minimum humidity (AirGradient)
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: 100k
+                    - generic:
+                      - generic: 200k
+                    - generic:
+                      - generic: 300k
+                    - generic:
+                      - generic: 400k
+        - generic [ref=e217]:
+          - generic [ref=e221]:
+            - generic [ref=e222]:
+              - link "Live — Events by Program" [ref=e225] [cursor=pointer]:
+                - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=31
+              - generic [ref=e226]:
+                - button "Applied filters (1)" [ref=e397] [cursor=pointer]:
+                  - img "filter" [ref=e398]:
+                    - img [ref=e399]
+                  - superscript [ref=e402]:
+                    - generic [ref=e404]: "1"
+                - button "More Options" [ref=e227] [cursor=pointer]
+            - img [ref=e410]:
+              - generic [ref=e412]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: Climate Air Quality
+                      - generic:
+                        - generic: "NCLE: Communicable Disease"
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: "0"
+                      - generic:
+                        - generic: 50k
+                      - generic:
+                        - generic: 100k
+                      - generic:
+                        - generic: 150k
+          - generic [ref=e242]:
+            - link "Live — Events per Month" [ref=e245] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=32
+            - generic [ref=e246]:
+              - button "Applied filters (1)" [ref=e420] [cursor=pointer]:
+                - img "filter" [ref=e421]:
+                  - img [ref=e422]
+                - superscript [ref=e425]:
+                  - generic [ref=e427]: "1"
+              - button "More Options" [ref=e247] [cursor=pointer]
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - link "Live — Most Recent Data Value Updates" [ref=e267] [cursor=pointer]:
+              - /url: /explore/?dashboard_page_id=MqhF_MxaOKvx8YChkKV3Q&slice_id=33
+            - generic [ref=e268]:
+              - button "Applied filters (1)" [ref=e434] [cursor=pointer]:
+                - img "filter" [ref=e435]:
+                  - img [ref=e436]
+                - superscript [ref=e439]:
+                  - generic [ref=e441]: "1"
+              - button "More Options" [ref=e269] [cursor=pointer]
+          - generic [ref=e446]:
+            - generic [ref=e451]:
+              - text: Search
+              - textbox "Search 50 records" [ref=e452]:
+                - /placeholder: 50 records...
+            - table [ref=e453]:
+              - row "dataelement orgunit last_updated" [ref=e458]:
+                - columnheader "dataelement" [ref=e459] [cursor=pointer]:
+                  - generic [ref=e460]:
+                    - generic [ref=e461]: dataelement
+                    - img [ref=e462]
+                - columnheader "orgunit" [ref=e464] [cursor=pointer]:
+                  - generic [ref=e465]:
+                    - generic [ref=e466]: orgunit
+                    - img [ref=e467]
+                - columnheader "last_updated" [ref=e469] [cursor=pointer]:
+                  - generic [ref=e470]:
+                    - generic [ref=e471]: last_updated
+                    - img [ref=e472]
+              - rowgroup [ref=e478]:
+                - row "dataelement orgunit last_updated" [ref=e479]:
+                  - cell "dataelement" [ref=e480] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e481] [cursor=pointer]: 03 Louangnamtha
+                  - cell "last_updated" [ref=e482]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e483]:
+                  - cell "dataelement" [ref=e484] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e485] [cursor=pointer]: 08 Xainyabouli
+                  - cell "last_updated" [ref=e486]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e487]:
+                  - cell "dataelement" [ref=e488] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e489] [cursor=pointer]: 05 Bokeo
+                  - cell "last_updated" [ref=e490]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e491]:
+                  - cell "dataelement" [ref=e492] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e493] [cursor=pointer]: 04 Oudomxai
+                  - cell "last_updated" [ref=e494]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e495]:
+                  - cell "dataelement" [ref=e496] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e497] [cursor=pointer]: 08 Xainyabouli
+                  - cell "last_updated" [ref=e498]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e499]:
+                  - cell "dataelement" [ref=e500] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e501] [cursor=pointer]: 17 Attapu
+                  - cell "last_updated" [ref=e502]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e503]:
+                  - cell "dataelement" [ref=e504] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e505] [cursor=pointer]: 18 Xaisomboun
+                  - cell "last_updated" [ref=e506]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e507]:
+                  - cell "dataelement" [ref=e508] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e509] [cursor=pointer]: 03 Louangnamtha
+                  - cell "last_updated" [ref=e510]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e511]:
+                  - cell "dataelement" [ref=e512] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e513] [cursor=pointer]: 15 Xekong
+                  - cell "last_updated" [ref=e514]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e515]:
+                  - cell "dataelement" [ref=e516] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e517] [cursor=pointer]: 13 Savannakhet
+                  - cell "last_updated" [ref=e518]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e519]:
+                  - cell "dataelement" [ref=e520] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e521] [cursor=pointer]: 09 Xiangkhouang
+                  - cell "last_updated" [ref=e522]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e523]:
+                  - cell "dataelement" [ref=e524] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e525] [cursor=pointer]: 17 Attapu
+                  - cell "last_updated" [ref=e526]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e527]:
+                  - cell "dataelement" [ref=e528] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e529] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "last_updated" [ref=e530]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e531]:
+                  - cell "dataelement" [ref=e532] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e533] [cursor=pointer]: 16 Champasak
+                  - cell "last_updated" [ref=e534]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e535]:
+                  - cell "dataelement" [ref=e536] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e537] [cursor=pointer]: 15 Xekong
+                  - cell "last_updated" [ref=e538]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e539]:
+                  - cell "dataelement" [ref=e540] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e541] [cursor=pointer]: 05 Bokeo
+                  - cell "last_updated" [ref=e542]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e543]:
+                  - cell "dataelement" [ref=e544] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e545] [cursor=pointer]: 04 Oudomxai
+                  - cell "last_updated" [ref=e546]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e547]:
+                  - cell "dataelement" [ref=e548] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e549] [cursor=pointer]: 04 Oudomxai
+                  - cell "last_updated" [ref=e550]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e551]:
+                  - cell "dataelement" [ref=e552] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e553] [cursor=pointer]: 05 Bokeo
+                  - cell "last_updated" [ref=e554]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e555]:
+                  - cell "dataelement" [ref=e556] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e557] [cursor=pointer]: 12 Khammouan
+                  - cell "last_updated" [ref=e558]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e559]:
+                  - cell "dataelement" [ref=e560] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e561] [cursor=pointer]: 10 Vientiane
+                  - cell "last_updated" [ref=e562]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e563]:
+                  - cell "dataelement" [ref=e564] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e565] [cursor=pointer]: 18 Xaisomboun
+                  - cell "last_updated" [ref=e566]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e567]:
+                  - cell "dataelement" [ref=e568] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e569] [cursor=pointer]: 14 Salavan
+                  - cell "last_updated" [ref=e570]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e571]:
+                  - cell "dataelement" [ref=e572] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e573] [cursor=pointer]: 04 Oudomxai
+                  - cell "last_updated" [ref=e574]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e575]:
+                  - cell "dataelement" [ref=e576] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e577] [cursor=pointer]: 02 Phongsali
+                  - cell "last_updated" [ref=e578]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e579]:
+                  - cell "dataelement" [ref=e580] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e581] [cursor=pointer]: 15 Xekong
+                  - cell "last_updated" [ref=e582]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e583]:
+                  - cell "dataelement" [ref=e584] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e585] [cursor=pointer]: 02 Phongsali
+                  - cell "last_updated" [ref=e586]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e587]:
+                  - cell "dataelement" [ref=e588] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e589] [cursor=pointer]: 14 Salavan
+                  - cell "last_updated" [ref=e590]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e591]:
+                  - cell "dataelement" [ref=e592] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e593] [cursor=pointer]: 11 Bolikhamxai
+                  - cell "last_updated" [ref=e594]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e595]:
+                  - cell "dataelement" [ref=e596] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e597] [cursor=pointer]: 06 Louangphabang
+                  - cell "last_updated" [ref=e598]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e599]:
+                  - cell "dataelement" [ref=e600] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e601] [cursor=pointer]: 06 Louangphabang
+                  - cell "last_updated" [ref=e602]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e603]:
+                  - cell "dataelement" [ref=e604] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e605] [cursor=pointer]: 07 Houaphan
+                  - cell "last_updated" [ref=e606]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e607]:
+                  - cell "dataelement" [ref=e608] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e609] [cursor=pointer]: 15 Xekong
+                  - cell "last_updated" [ref=e610]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e611]:
+                  - cell "dataelement" [ref=e612] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e613] [cursor=pointer]: 07 Houaphan
+                  - cell "last_updated" [ref=e614]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e615]:
+                  - cell "dataelement" [ref=e616] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e617] [cursor=pointer]: 13 Savannakhet
+                  - cell "last_updated" [ref=e618]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e619]:
+                  - cell "dataelement" [ref=e620] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e621] [cursor=pointer]: 09 Xiangkhouang
+                  - cell "last_updated" [ref=e622]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e623]:
+                  - cell "dataelement" [ref=e624] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e625] [cursor=pointer]: 17 Attapu
+                  - cell "last_updated" [ref=e626]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e627]:
+                  - cell "dataelement" [ref=e628] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e629] [cursor=pointer]: 09 Xiangkhouang
+                  - cell "last_updated" [ref=e630]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e631]:
+                  - cell "dataelement" [ref=e632] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e633] [cursor=pointer]: 18 Xaisomboun
+                  - cell "last_updated" [ref=e634]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e635]:
+                  - cell "dataelement" [ref=e636] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e637] [cursor=pointer]: 06 Louangphabang
+                  - cell "last_updated" [ref=e638]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e639]:
+                  - cell "dataelement" [ref=e640] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e641] [cursor=pointer]: 18 Xaisomboun
+                  - cell "last_updated" [ref=e642]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e643]:
+                  - cell "dataelement" [ref=e644] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e645] [cursor=pointer]: 10 Vientiane
+                  - cell "last_updated" [ref=e646]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e647]:
+                  - cell "dataelement" [ref=e648] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile Low
+                  - cell "orgunit" [ref=e649] [cursor=pointer]: 16 Champasak
+                  - cell "last_updated" [ref=e650]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e651]:
+                  - cell "dataelement" [ref=e652] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e653] [cursor=pointer]: 16 Champasak
+                  - cell "last_updated" [ref=e654]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e655]:
+                  - cell "dataelement" [ref=e656] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e657] [cursor=pointer]: 08 Xainyabouli
+                  - cell "last_updated" [ref=e658]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e659]:
+                  - cell "dataelement" [ref=e660] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile High
+                  - cell "orgunit" [ref=e661] [cursor=pointer]: 02 Phongsali
+                  - cell "last_updated" [ref=e662]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e663]:
+                  - cell "dataelement" [ref=e664] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-low
+                  - cell "orgunit" [ref=e665] [cursor=pointer]: 01 Vientiane Capital
+                  - cell "last_updated" [ref=e666]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e667]:
+                  - cell "dataelement" [ref=e668] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e669] [cursor=pointer]: 09 Xiangkhouang
+                  - cell "last_updated" [ref=e670]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e671]:
+                  - cell "dataelement" [ref=e672] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile mid-High
+                  - cell "orgunit" [ref=e673] [cursor=pointer]: 05 Bokeo
+                  - cell "last_updated" [ref=e674]: 2025-11-14 18:45:57
+                - row "dataelement orgunit last_updated" [ref=e675]:
+                  - cell "dataelement" [ref=e676] [cursor=pointer]: Predict torch medium Dengue Cases - Weekly Quantile median
+                  - cell "orgunit" [ref=e677] [cursor=pointer]: 13 Savannakhet
+                  - cell "last_updated" [ref=e678]: 2025-11-14 18:45:57

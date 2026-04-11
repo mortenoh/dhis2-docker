@@ -125,11 +125,33 @@ services:
           --timeout 60 \
           --keep-alive 2 \
           "superset.app:create_app()"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8088/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+  superset-seed:
+    image: dhis2-docker-superset:4.1.1
+    container_name: superset-seed
+    depends_on:
+      superset:
+        condition: service_healthy
+    volumes:
+      - ./superset/seed_dashboard.py:/seed/seed_dashboard.py:ro
+    environment:
+      SUPERSET_BASE: http://superset:8088
+      SUPERSET_USER: admin
+      SUPERSET_PASSWORD: admin
+    entrypoint:
+      - python
+      - /seed/seed_dashboard.py
 
 volumes:
   superset_db:
