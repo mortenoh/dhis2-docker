@@ -1,6 +1,13 @@
 # dhis2-docker
 
-Local DHIS2 development stack: PostgreSQL + DHIS2 + Glowroot APM + pgAdmin, orchestrated with Docker Compose. Designed for fast iteration on a local machine with a seeded dump of real DHIS2 data.
+![DHIS2](https://img.shields.io/badge/DHIS2%20Core-42-2C6693?style=flat-square)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?style=flat-square&logo=postgresql&logoColor=white)
+![Glowroot](https://img.shields.io/badge/Glowroot-0.14.6-5C4D7D?style=flat-square)
+![pgAdmin](https://img.shields.io/badge/pgAdmin-4-326690?style=flat-square&logo=postgresql&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker%20Compose-enabled-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/mortenoh/dhis2-docker?style=flat-square)
+
+Local DHIS2 development stack: **PostgreSQL + DHIS2 + Glowroot APM + pgAdmin**, orchestrated with Docker Compose. Designed for fast iteration on a local machine with a seeded dump of real DHIS2 data. One command brings everything up with zero prompts, and every DHIS2 user's password is reset to `district` so you can log in as anyone.
 
 ## What's in the box
 
@@ -14,9 +21,9 @@ Local DHIS2 development stack: PostgreSQL + DHIS2 + Glowroot APM + pgAdmin, orch
 
 ## Prerequisites
 
-- Docker Desktop with **at least 12 GB memory** allocated (16 GB recommended — DHIS2 needs ~5 GB just for the analytics populate phase, and starving the Docker Desktop VM will get the JVM SIGKILL'd mid-populate).
-- `make`, `curl`, `bash` on the host (standard on macOS and most Linux distros).
-- A DHIS2 database dump at `./dhis.sql.gz` (gzipped `pg_dump` output). The `.sql.gz` file is gitignored; drop your own dump in the project root.
+- **Docker Desktop** with **at least 12 GB** memory allocated (16 GB recommended). DHIS2 needs ~5 GB just for the analytics populate phase, and starving the Docker Desktop VM will get the JVM SIGKILL'd mid-populate.
+- **`make`, `curl`, `bash`** on the host (standard on macOS and most Linux distros).
+- A **DHIS2 database dump** at `./dhis.sql.gz` (gzipped `pg_dump` output). `.sql.gz` is gitignored; drop your own dump in the project root.
 
 ## Quick start
 
@@ -24,52 +31,56 @@ Local DHIS2 development stack: PostgreSQL + DHIS2 + Glowroot APM + pgAdmin, orch
 make run
 ```
 
-That's it. `make run`:
+No `.env` file needed — every variable has a sensible default baked into `compose.yml`. Only create a `.env` if you want to override something (`cp .env.example .env`).
 
-1. Wipes `home/logs/*` so you start with a clean log directory.
-2. `docker compose down -v` — nukes any previous state, including the `pgdata` volume so postgres reinitializes from scratch.
-3. `docker compose up` with both `compose.yml` and `compose.pgadmin.yml`.
+That's it. `make run` will:
 
-First startup takes 5–10 minutes: postgres has to import the dump, DHIS2 has to do its schema migrations and app discovery, and `analytics-trigger` has to populate the analytics tables before exiting. Subsequent `make run` invocations are the same length because `-v` wipes the database every time.
+1. Wipe `home/logs/*`.
+2. `docker compose down -v` — nuke any previous state, including the `pgdata` volume so postgres reinitializes from scratch.
+3. `docker compose up` with both `compose.yml` and `compose.pgadmin.yml`, streaming logs in the foreground.
 
-When it's done you'll have:
+First startup takes **5–10 minutes**: postgres imports the dump, DHIS2 runs schema migrations and app discovery, then `analytics-trigger` populates the analytics tables before exiting. Every `make run` does this from scratch — image layers are reused (fast rebuild), but the postgres volume is always wiped (`down -v`), so you get a clean dataset every time. Press `Ctrl+C` to stop.
 
-| URL | What |
+When it's done you'll have three services ready to browse:
+
+| URL | Service |
 |---|---|
-| http://localhost:8080 | DHIS2 |
-| http://localhost:4000 | Glowroot APM |
-| http://localhost:5050 | pgAdmin |
+| [http://localhost:8080](http://localhost:8080) | DHIS2 |
+| [http://localhost:4000](http://localhost:4000) | Glowroot APM |
+| [http://localhost:5050](http://localhost:5050) | pgAdmin |
 
 ## Accessing the services
 
-### DHIS2 → http://localhost:8080
+### DHIS2 — http://localhost:8080
 
-Log in as `admin` / `district`. That said, **any existing username in the dump also works with the password `district`** — `initdb.sh` rewrites every row in the `userinfo` table on a fresh init (see [Password reset](#password-reset--all-dhis2-users-get-the-same-password) below).
+Log in as `admin` / `district`. **Any existing username in the dump also works with the password `district`** — `initdb.sh` rewrites every row in `userinfo` on a fresh init (see [Password reset](#password-reset) below).
 
-If you see a 502 or the page doesn't load immediately, DHIS2 is still booting — Tomcat takes ~30–90 seconds after postgres becomes healthy. Follow `docker compose logs -f dhis2` to watch it come up.
+If the page doesn't load immediately, DHIS2 is still booting. Tomcat takes ~30–90 seconds after postgres becomes healthy. Follow `docker compose logs -f dhis2` to watch it come up.
 
-### Glowroot APM → http://localhost:4000
+### Glowroot APM — http://localhost:4000
 
-Just open the URL. **No login screen** — `glowroot/admin.json` pre-declares an anonymous Administrator user, so you land directly on the dashboard. Hit a few DHIS2 pages to generate traffic, then look at:
+Just open the URL — no login screen. `glowroot/admin.json` pre-declares an anonymous Administrator user, so you land straight on the dashboard. Hit a few DHIS2 pages to generate traffic, then explore:
 
-- **Transactions → Web** — per-endpoint response times, sample traces, slow query breakdown
+- **Transactions > Web** — per-endpoint response times, sample traces, slow query breakdown
 - **Errors** — exceptions with full stacks
-- **JVM → Gauges** — heap, GC, threads
-- **JVM → MBean tree / Thread dump / Heap dump** — live introspection
+- **JVM > Gauges** — heap, GC, threads
+- **JVM > MBean tree / Thread dump / Heap dump** — live introspection
 
-Storage is in `home/glowroot/data/` on the host (H2 embedded). Surviving `make run` is fine because `home/glowroot/` is a bind mount, not a Docker volume. If you ever want a blank-slate glowroot, `rm -rf home/glowroot/` and re-run — the `glowroot-installer` sidecar will re-download the agent.
+Glowroot stores its own data under `home/glowroot/data/` (H2 embedded). Because `home/glowroot/` is a host bind mount, `make run`'s `down -v` doesn't touch it, so your traces and configuration persist across restarts. For a blank-slate glowroot, `rm -rf home/glowroot/ && make run` — the `glowroot-installer` sidecar will re-download the agent.
 
-⚠️ **Local dev only.** The anonymous-admin shortcut means anyone who can reach port 4000 has full APM access. Never expose this port on a shared machine or network.
+> **Warning** — local dev only. The anonymous-admin shortcut means anyone who can reach port 4000 has full APM access. Never expose this port on a shared machine or network.
 
-### pgAdmin → http://localhost:5050
+### pgAdmin — http://localhost:5050
 
-Open the URL and click the **DHIS2** server in the left-hand tree (expand `Servers` → `DHIS2`). Everything is pre-configured:
+Open the URL and click the **DHIS2** server in the left tree (expand `Servers` > `DHIS2`). Three normally-annoying prompts are pre-disabled:
 
-- **No master password** — `PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"` skips the first-launch prompt.
-- **Desktop mode** — `PGADMIN_CONFIG_SERVER_MODE: "False"` skips the pgAdmin login.
-- **No DB password prompt** — `pgadmin4/pgpass` (chmod 600, format `postgresql:5432:*:dhis:dhis`) is bind-mounted into the container at `/pgpass`, and `pgadmin4/servers.json` points at it via `"PassFile": "/pgpass"`. When you click the DHIS2 connection, pgAdmin reads the pgpass file and connects silently.
+| Prompt | Disabled by |
+|---|---|
+| Master password on first launch | `PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"` |
+| pgAdmin login | `PGADMIN_CONFIG_SERVER_MODE: "False"` (desktop mode) |
+| Database password | `pgadmin4/pgpass` (chmod 600) bind-mounted at `/pgpass` and referenced via `"PassFile": "/pgpass"` in `pgadmin4/servers.json` |
 
-If you later want to add more servers, do it in the UI normally — pgAdmin's own internal SQLite state persists inside the container for the lifetime of the pgadmin volume (wiped on `make run`, since it uses `down -v`). For anything permanent, edit `pgadmin4/servers.json` instead so it re-seeds on every startup.
+If you want to add more servers, either (a) do it in the UI and accept that they live only for the lifetime of the pgadmin container, or (b) edit `pgadmin4/servers.json` so they re-seed on every startup.
 
 ## Make targets
 
@@ -82,9 +93,9 @@ make down        stop the stack (keeps volumes)
 make help        show this help
 ```
 
-`make run` reuses cached image layers and is the right default. `make force-run` is needed when you've changed the `Dockerfile` or want a guaranteed-fresh build (`--no-cache`) — it adds several minutes for the `apt-get upgrade` step in the postgres image.
+`make run` is the right default — it reuses cached image layers so the build step is ~instant, but still wipes the postgres volume for a clean DB. Use `make force-run` only when you've edited `Dockerfile` and need `--no-cache`, since it adds several minutes to re-run `apt-get upgrade` from scratch.
 
-## Password reset — all DHIS2 users get the same password
+## Password reset
 
 `initdb.sh` runs once on fresh postgres init and rewrites every row in the `userinfo` table:
 
@@ -94,51 +105,38 @@ UPDATE userinfo SET password = <bcrypt($DHIS2_PASSWORD)>, disabled = false;
 
 This means:
 
-- **Every DHIS2 user** — not just `admin` — can log in with their existing username and the password from `.env`.
-- **Every disabled account is re-enabled** (`disabled = false`), which matters because dumps from real deployments often ship with historical users disabled.
-- **The password is `$DHIS2_PASSWORD` from `.env`** (default `district`). Change `.env`, then `make run`, and every user's password changes.
+- **Every DHIS2 user** — not just `admin` — can log in with their existing username and the password from `.env` (default `district`).
+- **Every disabled account is re-enabled** (`disabled = false`), which matters because real dumps often ship with historical users disabled.
+- **Change the password** by editing `DHIS2_PASSWORD` in `.env` and running `make run` again.
 
-The hashing happens inside the postgres container via `python3-bcrypt` (installed in our `Dockerfile`), so `DHIS2_PASSWORD` can be set to anything — no pre-computed hash needed.
+Hashing happens inside the postgres container via `python3-bcrypt` (installed in the `Dockerfile`), so `DHIS2_PASSWORD` can be any plaintext string — no pre-computed hash needed.
 
-This is purely a local-dev convenience and should never be used against a real database.
+This is a local-dev convenience and should never be run against a real database.
 
 ## Glowroot APM
 
-Glowroot is a Java agent that attaches to the DHIS2 JVM via `-javaagent`. Because it has to be present before the JVM starts, it's **baked into the base compose** rather than offered as an overlay — the `glowroot-installer` service runs first, downloads the agent into `home/glowroot/` (which is bind-mounted into the DHIS2 container as `/opt/dhis2/glowroot/`), and exits. DHIS2 then starts with `JAVA_OPTS=… -javaagent:/opt/dhis2/glowroot/glowroot.jar`.
+Glowroot is a Java agent (`-javaagent`). It has to be present before the JVM starts, so it's **baked into the base compose** rather than offered as an overlay. The `glowroot-installer` service runs first, downloads the agent into `home/glowroot/` (bind-mounted into the DHIS2 container as `/opt/dhis2/glowroot/`), and exits. DHIS2 then starts with `JAVA_OPTS=... -javaagent:/opt/dhis2/glowroot/glowroot.jar`.
 
-The installer is idempotent: if `home/glowroot/glowroot.jar` already exists on the host, it skips the download and just refreshes `admin.json` from the seed template (`glowroot/admin.json`), so bumping auth config is fast.
-
-**No login required.** `glowroot/admin.json` declares an `anonymous` user with the `Administrator` role and binds the UI to `0.0.0.0:4000` inside the container. This is explicitly a local-dev shortcut — do not expose port 4000 to anything you don't trust.
+The installer is idempotent: if `home/glowroot/glowroot.jar` already exists, it skips the download and just refreshes `admin.json` from the seed template (`glowroot/admin.json`), so bumping auth config is fast.
 
 ## pgAdmin — zero-prompt DB access
 
-`compose.pgadmin.yml` is an overlay that carries the `pgadmin4` service. It's always pulled in by `make run` / `make force-run` / `make build` / `make pull` / `make down` via a `COMPOSE :=` variable in the `Makefile`, so for everyday use it behaves as if it were in the base. The split exists so you can `docker compose up` directly (without `-f compose.pgadmin.yml`) if you ever want a leaner stack.
-
-Two normally-annoying prompts are disabled:
-
-- **No master password on first launch** — `PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"` plus `PGADMIN_CONFIG_SERVER_MODE: "False"` (desktop mode).
-- **No DB password prompt** — `pgadmin4/pgpass` is a `.pgpass`-format file (`postgresql:5432:*:dhis:dhis`) bind-mounted into the container at `/pgpass`, and `pgadmin4/servers.json` references it via `"PassFile": "/pgpass"`. `chmod 600` on the host file is required (libpq rejects looser perms).
-
-Click the `DHIS2` connection and you're in.
+`compose.pgadmin.yml` is an overlay that carries the `pgadmin4` service. Every Makefile target wraps both files via a `COMPOSE := docker compose -f compose.yml -f compose.pgadmin.yml` variable, so day-to-day it behaves as if it were in the base. The split exists so `docker compose up` (without `-f compose.pgadmin.yml`) gives you a leaner stack if you ever want one.
 
 ## Environment
 
-Configuration lives in `.env` (gitignored). The committed **`.env.example`** is the canonical reference — copy it and edit locally:
+`.env` is **fully optional**. Every variable has a default baked into `compose.yml` via `${VAR:-default}` substitution, so `make run` works out of the box with no configuration. If you want to override any default, `cp .env.example .env` and uncomment the lines you care about — docker compose automatically reads `.env` from the project root for variable substitution.
 
-```bash
-cp .env.example .env
-```
-
-Required vars (consumed by image entrypoints and will fail the stack if missing):
-
-- `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` — postgres image init
-- `TZ` — container timezone
-- `PGADMIN_DEFAULT_EMAIL` / `PGADMIN_DEFAULT_PASSWORD` — pgadmin4 image init
-
-Optional (defaulted in `initdb.sh`, only set if you want to override):
-
-- `DHIS2_USER` — default `admin`. Used purely for display/logging; `initdb.sh` resets *every* row in `userinfo`, not just this one.
-- `DHIS2_PASSWORD` — default `district`. Bcrypt-hashed at init time and applied to every DHIS2 user. Change this and re-run `make run` to re-seed.
+| Variable | Default | What it does |
+|---|---|---|
+| `POSTGRES_USER` | `dhis` | Postgres superuser created on first init |
+| `POSTGRES_PASSWORD` | `dhis` | Postgres superuser password |
+| `POSTGRES_DB` | `dhis` | Postgres database created on first init |
+| `TZ` | `Europe/Oslo` | Container timezone for both postgres and pgadmin |
+| `PGADMIN_DEFAULT_EMAIL` | `admin@admin.com` | pgAdmin master identity (invisible in desktop mode) |
+| `PGADMIN_DEFAULT_PASSWORD` | `root` | pgAdmin master password (invisible in desktop mode) |
+| `DHIS2_USER` | `admin` | Used only for display / logging; `initdb.sh` resets *every* row in `userinfo` regardless |
+| `DHIS2_PASSWORD` | `district` | Bcrypt-hashed at init time and applied to every DHIS2 user |
 
 ## File layout
 
@@ -151,7 +149,7 @@ dhis.sql.gz               # your gzipped DHIS2 dump (gitignored)
 
 glowroot/admin.json       # committed seed for glowroot auth config
 pgadmin4/servers.json     # pgAdmin pre-registered server entry
-pgadmin4/pgpass           # chmod-600 .pgpass for pgAdmin (servers.json → PassFile)
+pgadmin4/pgpass           # chmod-600 pgpass (referenced from servers.json via PassFile)
 
 home/                     # bind-mounted into dhis2 container as /opt/dhis2
 ├── dhis.conf             # DHIS2 config (committed)
@@ -161,21 +159,28 @@ home/                     # bind-mounted into dhis2 container as /opt/dhis2
 └── glowroot/             # downloaded by glowroot-installer (gitignored)
 
 Makefile
-README.md
-.env                      # gitignored
+README.md                 # you are here
+analytics.md              # guided tour of the analytics_* tables with example queries
+CLAUDE.md                 # project rules (no emojis, no Claude attribution, Conventional Commits)
+.env                      # local config (gitignored)
+.env.example              # canonical reference for .env
 .gitignore
 ```
 
+For a walk-through of the DHIS2 `analytics_*` tables (schema, cross-verification of the inheritance chain, and practical example queries) see [analytics.md](analytics.md).
+
 ## Troubleshooting
 
-**DHIS2 restarts mid-startup, analytics-trigger loops forever.** Docker Desktop VM is out of memory and the host kernel is SIGKILL'ing the JVM during the analytics populate phase. Bump Docker Desktop → Resources → Memory to 16 GB. The JVM's `-Xmx4g` plus analytics workers plus the postgres buffer pool easily blows past 8 GB on real data.
+**DHIS2 restarts mid-startup, analytics-trigger loops forever.** Docker Desktop VM is out of memory and the host kernel is SIGKILL'ing the JVM during the analytics populate phase. Bump Docker Desktop > Resources > Memory to 16 GB. The JVM's `-Xmx4g` plus analytics workers plus the postgres buffer pool easily blows past 8 GB on real data.
 
-**analytics-trigger keeps printing `Still running...` and never completes.** Check `docker logs dhis2 | grep -i 'added root logger'` — if you see that line *after* analytics started, DHIS2 silently restarted and the task notifications buffer was lost. Same cause as above (memory). The trigger script hardcodes `admin`/`district`, so if you've somehow deleted the `admin` user from the dump, you'll see `401 Unauthorized` instead.
+**analytics-trigger keeps printing `Still running...` and never completes.** Check `docker logs dhis2 | grep -i 'added root logger'` — if you see that line *after* analytics started, DHIS2 silently restarted and the task notifications buffer was lost. Same cause as above (memory). `analytics-trigger` hardcodes `admin` / `district`, so if you've deleted the `admin` user from the dump, you'll see `401 Unauthorized` instead.
 
 **pgAdmin complains the server is out of date.** `pull_policy: always` on `dpage/pgadmin4:latest` refreshes the image on every `make run`, but Docker Hub's `:latest` tag occasionally lags. Pin to a specific version in `compose.pgadmin.yml` if needed.
 
-**`make force-run` takes forever.** The `--no-cache` flag re-runs `apt-get upgrade` from scratch inside the postgres image build. Use `make run` unless you actually need to bust the layer cache (Dockerfile changes).
+**`make force-run` takes forever.** The `--no-cache` flag re-runs `apt-get upgrade` from scratch inside the postgres image build. Use `make run` unless you've actually edited the `Dockerfile`.
+
+**Port 8080 / 4000 / 5050 already in use.** Something else is bound to one of those ports on the host. `lsof -i :8080` to find the culprit, or change the published port in the relevant compose file.
 
 ## Licensing
 
-Glowroot is Apache 2.0. pgAdmin is PostgreSQL License. DHIS2 is BSD-3-Clause. This repo itself is unlicensed; treat it as an internal dev tool.
+Glowroot is Apache 2.0, pgAdmin is PostgreSQL License, DHIS2 is BSD-3-Clause. This repo itself is unlicensed — treat it as a local dev tool.

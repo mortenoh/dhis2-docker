@@ -3,10 +3,12 @@ services:
     image: dpage/pgadmin4:latest
     pull_policy: always
     restart: always
-    env_file: .env
     environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-root}
       PGADMIN_CONFIG_SERVER_MODE: "False"
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      TZ: ${TZ:-Europe/Oslo}
     ports:
       - "5050:80"
     volumes:

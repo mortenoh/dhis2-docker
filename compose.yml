@@ -3,19 +3,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # container_name: postgresql
     restart: always
-    env_file: .env
     environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dhis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dhis}
+      POSTGRES_DB: ${POSTGRES_DB:-dhis}
       POSTGRES_HOST_AUTH_METHOD: md5
-    #ports:
-    #  - "15432:5432"
+      TZ: ${TZ:-Europe/Oslo}
+      DHIS2_USER: ${DHIS2_USER:-admin}
+      DHIS2_PASSWORD: ${DHIS2_PASSWORD:-district}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./initdb.sh:/docker-entrypoint-initdb.d/initdb.sh:ro
       - ./dhis.sql.gz:/docker-entrypoint-initdb.d/dhis-backup.gz:ro
     healthcheck:
-      test: [ "CMD-SHELL", "[ -f /var/lib/postgresql/data/.init-complete ] && psql -U dhis -d dhis -c 'SELECT 1' > /dev/null 2>&1" ]
+      test: [ "CMD-SHELL", "[ -f /var/lib/postgresql/data/.init-complete ] && psql -U $${POSTGRES_USER} -d $${POSTGRES_DB} -c 'SELECT 1' > /dev/null 2>&1" ]
       interval: 10s
       timeout: 10s
       retries: 360
@@ -38,13 +40,13 @@ services:
       - |
         set -e
         if [ -f /opt/dhis2/glowroot/glowroot.jar ]; then
-          echo '✅ glowroot already installed, refreshing admin.json'
+          echo '>>> glowroot already installed, refreshing admin.json'
           cp /seed/admin.json /opt/dhis2/glowroot/admin.json
           exit 0
         fi
-        echo '📦 Installing curl + unzip...'
+        echo '>>> installing curl + unzip...'
         apk add --no-cache curl unzip >/dev/null
-        echo '📦 Downloading glowroot 0.14.6...'
+        echo '>>> downloading glowroot 0.14.6...'
         mkdir -p /tmp/gl /opt/dhis2/glowroot
         cd /tmp/gl
         curl -fsSL -o glowroot.zip \
@@ -52,7 +54,7 @@ services:
         unzip -q glowroot.zip
         cp -r glowroot/. /opt/dhis2/glowroot/
         cp /seed/admin.json /opt/dhis2/glowroot/admin.json
-        echo '✅ glowroot installed at /opt/dhis2/glowroot/'
+        echo '>>> glowroot installed at /opt/dhis2/glowroot/'
 
   dhis2:
     init: true
