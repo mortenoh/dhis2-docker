@@ -144,3 +144,31 @@ WHERE NOT te.deleted;
 
 COMMENT ON VIEW v_live_trackedentity IS
   'Live tracked entities with type and registering orgunit metadata.';
+
+
+-- ─── v_orgunit_geojson ────────────────────────────────────────────────
+-- Organisation units with PostGIS geometry exported as GeoJSON Feature
+-- strings. Each row is one OU whose geometry is not null. The GeoJSON
+-- Feature embeds the OU uid, name, and level as properties so deck.gl
+-- charts can tooltip and color by those attributes.
+DROP VIEW IF EXISTS v_orgunit_geojson CASCADE;
+CREATE VIEW v_orgunit_geojson AS
+SELECT
+  ou.uid                           AS ou_uid,
+  ou.name                          AS orgunit,
+  ou.hierarchylevel                AS ou_level,
+  ou.path                          AS ou_path,
+  jsonb_build_object(
+    'type',       'Feature',
+    'geometry',   ST_AsGeoJSON(ST_Simplify(ou.geometry, 0.005), 6)::jsonb,
+    'properties', jsonb_build_object(
+      'ou_uid',   ou.uid,
+      'orgunit',  ou.name,
+      'ou_level', ou.hierarchylevel
+    )
+  )::text                          AS geojson
+FROM organisationunit ou
+WHERE ou.geometry IS NOT NULL;
+
+COMMENT ON VIEW v_orgunit_geojson IS
+  'Organisation units with geometry as GeoJSON Feature strings for deck.gl map charts.';

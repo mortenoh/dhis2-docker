@@ -116,6 +116,56 @@ LIVE_DATASETS = [
     ("v_live_trackedentity", "lastupdated"),
 ]
 
+DENGUE_MAP_SQL = """SELECT
+  geo.ou_uid,
+  geo.orgunit                      AS province,
+  COALESCE(d.total_cases, 0)       AS total_cases,
+  d.latest_year,
+  d.years_of_data,
+  jsonb_set(
+    geo.geojson::jsonb,
+    '{properties}',
+    (geo.geojson::jsonb -> 'properties') || jsonb_build_object(
+      'total_cases', COALESCE(d.total_cases, 0),
+      'latest_year', d.latest_year,
+      'province',    geo.orgunit,
+      'fillColor',   jsonb_build_array(
+        LEAST(255, ROUND(255 * COALESCE(d.total_cases, 0)::numeric
+                             / GREATEST(max_val.v, 1))),
+        GREATEST(0, ROUND(120 * (1 - COALESCE(d.total_cases, 0)::numeric
+                                     / GREATEST(max_val.v, 1)))),
+        30,
+        200
+      )
+    )
+  )::text                          AS geojson
+FROM v_orgunit_geojson geo
+CROSS JOIN (
+  SELECT MAX(sub.total_cases) AS v
+  FROM (
+    SELECT ou.uidlevel2 AS prov_uid,
+           ROUND(SUM(a.value)::numeric, 0) AS total_cases
+    FROM analytics a
+    JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
+    JOIN analytics_rs_orgunitstructure ou      ON ou.organisationunituid = a.ou
+    WHERE des.dataelementname ILIKE '%dengue%cases%'
+    GROUP BY ou.uidlevel2
+  ) sub
+) max_val
+LEFT JOIN (
+  SELECT
+    ou.uidlevel2                       AS prov_uid,
+    ROUND(SUM(a.value)::numeric, 0)    AS total_cases,
+    MAX(a.year)                        AS latest_year,
+    COUNT(DISTINCT a.year)             AS years_of_data
+  FROM analytics a
+  JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
+  JOIN analytics_rs_orgunitstructure ou     ON ou.organisationunituid = a.ou
+  WHERE des.dataelementname ILIKE '%dengue%cases%'
+  GROUP BY ou.uidlevel2
+) d ON d.prov_uid = geo.ou_uid
+WHERE geo.ou_level = 2"""
+
 DATASET_SQL = """SELECT
   a.dx AS dataelement_uid,
   COALESCE(des.dataelementname, a.dx) AS dataelement,
@@ -503,6 +553,39 @@ def timeseries_line_params(
     }
 
 
+def deck_geojson_params(
+    ds_id: int,
+    geojson_col: str = "geojson",
+    sql_filter: str | None = None,
+) -> dict[str, Any]:
+    return {
+        "datasource": f"{ds_id}__table",
+        "viz_type": "deck_geojson",
+        "geojson": geojson_col,
+        "row_limit": 10000,
+        "mapbox_style": "mapbox://styles/mapbox/light-v9",
+        "viewport": {
+            "longitude": 103.5,
+            "latitude": 18.5,
+            "zoom": 5.2,
+            "bearing": 0,
+            "pitch": 0,
+        },
+        "fill_color_picker": {"r": 0, "g": 0, "b": 0, "a": 0},
+        "stroke_color_picker": {"r": 255, "g": 255, "b": 255, "a": 1},
+        "filled": True,
+        "stroked": True,
+        "extruded": False,
+        "point_radius_fixed": {"type": "fix", "value": 2000},
+        "line_width": 1,
+        "line_width_unit": "pixels",
+        "opacity": 70,
+        "reverse_long_lat": False,
+        "adhoc_filters": filters_for(sql_filter),
+        "js_columns": ["province", "total_cases", "latest_year"],
+    }
+
+
 # ---------------------------------------------------------------------------
 # Layout builder
 # ---------------------------------------------------------------------------
@@ -575,6 +658,7 @@ F_CLIMATE = (
     "OR dataelement ILIKE '%humidity%' OR dataelement ILIKE '%climate%')"
 )
 F_POPULATION = "dataelement ILIKE '%population%'"
+F_DENGUE = "dataelement ILIKE '%dengue%cases%'"
 F_CASES = (
     "(dataelement ILIKE '%cases%' OR dataelement ILIKE '%incidence%' "
     "OR dataelement ILIKE '%case (%' OR dataelement ILIKE '%cases (%')"
@@ -656,6 +740,43 @@ def build_live_dashboard(
             [("l_dv_de", 12, 60)],
             [("l_ev_prog", 6, 60), ("l_ev_year", 6, 60)],
             [("l_dv_recent", 12, 60)],
+        ],
+    }
+
+
+def build_dengue_map_dashboard(
+    geo_ds_id: int, agg_ds_id: int
+) -> dict[str, Any]:
+    """Dengue choropleth map dashboard. Uses the dhis2_dengue_map virtual
+    dataset for the deck_geojson map chart and the main dhis2_aggregate
+    dataset for the supporting bar/table charts."""
+    return {
+        "title": "DHIS2 Dengue Map",
+        "slug": "dhis2-dengue-map",
+        "charts": [
+            ("dm_map", "Dengue -- Province Choropleth", "deck_geojson",
+             deck_geojson_params(geo_ds_id)),
+            ("dm_total", "Dengue -- Total Cases", "big_number_total",
+             big_number_params(agg_ds_id, metric_sum("value", "cases"),
+                               "all-time dengue cases reported", F_DENGUE)),
+            ("dm_provs", "Dengue -- Provinces Reporting", "big_number_total",
+             big_number_params(agg_ds_id,
+                               metric_count_distinct("province", "provinces"),
+                               "distinct provinces", F_DENGUE)),
+            ("dm_year", "Dengue -- Cases per Year", "echarts_timeseries_bar",
+             timeseries_bar_params(agg_ds_id, "period_start",
+                                  metric_sum("value", "cases"), F_DENGUE)),
+            ("dm_prov", "Dengue -- Cases by Province", "dist_bar",
+             dist_bar_params(agg_ds_id, ["province"],
+                             metric_sum("value", "cases"), 20, F_DENGUE)),
+            ("dm_tbl", "Dengue -- Province x Year", "table",
+             table_params(agg_ds_id, ["province", "year"],
+                          [metric_sum("value", "cases")], 100, F_DENGUE)),
+        ],
+        "layout": [
+            [("dm_map", 6, 80), ("dm_total", 3, 40), ("dm_provs", 3, 40)],
+            [("dm_year", 6, 60), ("dm_prov", 6, 60)],
+            [("dm_tbl", 12, 60)],
         ],
     }
 
@@ -793,13 +914,21 @@ def main() -> int:
             main_dttm_col=dttm_col,
         )
 
+    # Dengue map dataset (virtual, joins aggregated cases with GeoJSON geometry)
+    dengue_geo_ds_id = sup.upsert_dataset(
+        db_id=db_id, table_name="dhis2_dengue_map", sql=DENGUE_MAP_SQL
+    )
+
     # Build the live-data dashboard now that we have its dataset ids.
     live_dashboard = build_live_dashboard(
         dv_id=live_ids["v_live_datavalue"],
         ev_id=live_ids["v_live_event"],
         en_id=live_ids["v_live_enrollment"],
     )
-    dashboards = build_dashboards(ds_id) + [live_dashboard]
+    dengue_map_dashboard = build_dengue_map_dashboard(
+        geo_ds_id=dengue_geo_ds_id, agg_ds_id=ds_id,
+    )
+    dashboards = build_dashboards(ds_id) + [live_dashboard, dengue_map_dashboard]
     print(f"\n[3] Charts and dashboards ({len(dashboards)} dashboards)")
 
     for dash in dashboards:
