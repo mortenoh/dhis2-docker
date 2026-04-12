@@ -117,54 +117,34 @@ LIVE_DATASETS = [
 ]
 
 DENGUE_MAP_SQL = """SELECT
-  geo.ou_uid,
-  geo.orgunit                      AS province,
-  COALESCE(d.total_cases, 0)       AS total_cases,
-  d.latest_year,
-  d.years_of_data,
-  jsonb_set(
-    geo.geojson::jsonb,
-    '{properties}',
-    (geo.geojson::jsonb -> 'properties') || jsonb_build_object(
-      'total_cases', COALESCE(d.total_cases, 0),
-      'latest_year', d.latest_year,
-      'province',    geo.orgunit,
-      'fillColor',   jsonb_build_array(
-        LEAST(255, ROUND(255 * COALESCE(d.total_cases, 0)::numeric
-                             / GREATEST(max_val.v, 1))),
-        GREATEST(0, ROUND(120 * (1 - COALESCE(d.total_cases, 0)::numeric
-                                     / GREATEST(max_val.v, 1)))),
-        30,
-        200
-      )
-    )
-  )::text                          AS geojson
-FROM v_orgunit_geojson geo
-CROSS JOIN (
-  SELECT MAX(sub.total_cases) AS v
-  FROM (
-    SELECT ou.uidlevel2 AS prov_uid,
-           ROUND(SUM(a.value)::numeric, 0) AS total_cases
-    FROM analytics a
-    JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
-    JOIN analytics_rs_orgunitstructure ou      ON ou.organisationunituid = a.ou
-    WHERE des.dataelementname ILIKE '%dengue%cases%'
-    GROUP BY ou.uidlevel2
-  ) sub
-) max_val
-LEFT JOIN (
-  SELECT
-    ou.uidlevel2                       AS prov_uid,
-    ROUND(SUM(a.value)::numeric, 0)    AS total_cases,
-    MAX(a.year)                        AS latest_year,
-    COUNT(DISTINCT a.year)             AS years_of_data
-  FROM analytics a
-  JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
-  JOIN analytics_rs_orgunitstructure ou     ON ou.organisationunituid = a.ou
-  WHERE des.dataelementname ILIKE '%dengue%cases%'
-  GROUP BY ou.uidlevel2
-) d ON d.prov_uid = geo.ou_uid
-WHERE geo.ou_level = 2"""
+  CASE ou.namelevel2
+    WHEN '01 Vientiane Capital' THEN 'LA-VI'
+    WHEN '02 Phongsali'         THEN 'LA-PH'
+    WHEN '03 Louangnamtha'      THEN 'LA-LM'
+    WHEN '04 Oudomxai'          THEN 'LA-OU'
+    WHEN '05 Bokeo'             THEN 'LA-BK'
+    WHEN '06 Louangphabang'     THEN 'LA-LP'
+    WHEN '07 Houaphan'          THEN 'LA-HO'
+    WHEN '08 Xainyabouli'       THEN 'LA-XA'
+    WHEN '09 Xiangkhouang'      THEN 'LA-XI'
+    WHEN '10 Vientiane'         THEN 'LA-VI'
+    WHEN '11 Bolikhamxai'       THEN 'LA-BL'
+    WHEN '12 Khammouan'         THEN 'LA-KH'
+    WHEN '13 Savannakhet'       THEN 'LA-SV'
+    WHEN '14 Salavan'           THEN 'LA-SL'
+    WHEN '15 Xekong'            THEN 'LA-XE'
+    WHEN '16 Champasak'         THEN 'LA-CH'
+    WHEN '17 Attapu'            THEN 'LA-AT'
+    WHEN '18 Xaisomboun'        THEN 'LA-XI'
+  END                                  AS iso,
+  ou.namelevel2                        AS province,
+  ROUND(SUM(a.value)::numeric, 0)      AS total_cases
+FROM analytics a
+JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
+JOIN analytics_rs_orgunitstructure ou     ON ou.organisationunituid = a.ou
+WHERE des.dataelementname ILIKE '%dengue%cases%'
+  AND ou.level = 2
+GROUP BY ou.namelevel2"""
 
 DATASET_SQL = """SELECT
   a.dx AS dataelement_uid,
@@ -553,36 +533,21 @@ def timeseries_line_params(
     }
 
 
-def deck_geojson_params(
+def country_map_params(
     ds_id: int,
-    geojson_col: str = "geojson",
+    country: str,
+    entity: str,
+    metric: dict[str, Any],
     sql_filter: str | None = None,
 ) -> dict[str, Any]:
     return {
         "datasource": f"{ds_id}__table",
-        "viz_type": "deck_geojson",
-        "geojson": geojson_col,
-        "row_limit": 10000,
-        "mapbox_style": "mapbox://styles/mapbox/light-v9",
-        "viewport": {
-            "longitude": 103.5,
-            "latitude": 18.5,
-            "zoom": 5.2,
-            "bearing": 0,
-            "pitch": 0,
-        },
-        "fill_color_picker": {"r": 0, "g": 0, "b": 0, "a": 0},
-        "stroke_color_picker": {"r": 255, "g": 255, "b": 255, "a": 1},
-        "filled": True,
-        "stroked": True,
-        "extruded": False,
-        "point_radius_fixed": {"type": "fix", "value": 2000},
-        "line_width": 1,
-        "line_width_unit": "pixels",
-        "opacity": 70,
-        "reverse_long_lat": False,
+        "viz_type": "country_map",
+        "select_country": country,
+        "entity": entity,
+        "metric": metric,
+        "linear_color_scheme": "superset_seq_1",
         "adhoc_filters": filters_for(sql_filter),
-        "js_columns": ["province", "total_cases", "latest_year"],
     }
 
 
@@ -754,8 +719,9 @@ def build_dengue_map_dashboard(
         "title": "DHIS2 Dengue Map",
         "slug": "dhis2-dengue-map",
         "charts": [
-            ("dm_map", "Dengue -- Province Choropleth", "deck_geojson",
-             deck_geojson_params(geo_ds_id)),
+            ("dm_map", "Dengue -- Province Choropleth", "country_map",
+             country_map_params(geo_ds_id, "laos", "iso",
+                                metric_sum("total_cases", "cases"))),
             ("dm_total", "Dengue -- Total Cases", "big_number_total",
              big_number_params(agg_ds_id, metric_sum("value", "cases"),
                                "all-time dengue cases reported", F_DENGUE)),
