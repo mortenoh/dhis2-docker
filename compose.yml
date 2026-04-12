@@ -18,7 +18,7 @@ services:
       - ./dhis.sql.gz:/docker-entrypoint-initdb.d/dhis-backup.gz:ro
     healthcheck:
       test: [ "CMD-SHELL", "[ -f /var/lib/postgresql/data/.init-complete ] && psql -U $${POSTGRES_USER} -d $${POSTGRES_DB} -c 'SELECT 1' > /dev/null 2>&1" ]
-      interval: 10s
+      interval: 30s
       timeout: 10s
       retries: 360
       start_period: 30s
@@ -82,7 +82,7 @@ services:
         condition: service_completed_successfully
     healthcheck:
       test: [ "CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/dhis-web-login/index.html | grep 200 > /dev/null || exit 1" ]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 60
     logging:
