@@ -1,4 +1,4 @@
-.PHONY: help pull build run run-force run-full down clean
+.PHONY: help pull build run run-force run-full run-force-full down clean
 .DEFAULT_GOAL := help
 
 COMPOSE      := docker compose -f compose.yml -f compose.pgadmin.yml
@@ -38,6 +38,16 @@ run-full: ## clean start of the full stack including Superset BI (UI on :8088)
 	rm -rf home/logs/*
 	@echo ">>> Tearing down volumes"
 	$(COMPOSE_FULL) down -v
+	@echo ">>> Starting full stack (with Superset)"
+	$(COMPOSE_FULL) up --remove-orphans
+
+run-force-full: ## wipe volumes + logs, rebuild images from scratch, and start full stack
+	@echo ">>> Wiping logs"
+	rm -rf home/logs/*
+	@echo ">>> Tearing down volumes"
+	$(COMPOSE_FULL) down -v
+	@echo ">>> Rebuilding (no cache)"
+	$(COMPOSE_FULL) build --no-cache
 	@echo ">>> Starting full stack (with Superset)"
 	$(COMPOSE_FULL) up --remove-orphans
 
