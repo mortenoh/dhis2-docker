@@ -116,35 +116,50 @@ LIVE_DATASETS = [
     ("v_live_trackedentity", "lastupdated"),
 ]
 
-DENGUE_MAP_SQL = """SELECT
-  CASE ou.namelevel2
-    WHEN '01 Vientiane Capital' THEN 'LA-VI'
-    WHEN '02 Phongsali'         THEN 'LA-PH'
-    WHEN '03 Louangnamtha'      THEN 'LA-LM'
-    WHEN '04 Oudomxai'          THEN 'LA-OU'
-    WHEN '05 Bokeo'             THEN 'LA-BK'
-    WHEN '06 Louangphabang'     THEN 'LA-LP'
-    WHEN '07 Houaphan'          THEN 'LA-HO'
-    WHEN '08 Xainyabouli'       THEN 'LA-XA'
-    WHEN '09 Xiangkhouang'      THEN 'LA-XI'
-    WHEN '10 Vientiane'         THEN 'LA-VI'
-    WHEN '11 Bolikhamxai'       THEN 'LA-BL'
-    WHEN '12 Khammouan'         THEN 'LA-KH'
-    WHEN '13 Savannakhet'       THEN 'LA-SV'
-    WHEN '14 Salavan'           THEN 'LA-SL'
-    WHEN '15 Xekong'            THEN 'LA-XE'
-    WHEN '16 Champasak'         THEN 'LA-CH'
-    WHEN '17 Attapu'            THEN 'LA-AT'
-    WHEN '18 Xaisomboun'        THEN 'LA-XI'
-  END                                  AS iso,
-  ou.namelevel2                        AS province,
-  ROUND(SUM(a.value)::numeric, 0)      AS total_cases
-FROM analytics a
-JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
-JOIN analytics_rs_orgunitstructure ou     ON ou.organisationunituid = a.ou
-WHERE des.dataelementname ILIKE '%dengue%cases%'
-  AND ou.level = 2
-GROUP BY ou.namelevel2"""
+POPULATION_MAP_SQL = """SELECT
+  geo.ou_uid,
+  geo.orgunit                      AS province,
+  COALESCE(d.population, 0)        AS population,
+  jsonb_set(
+    geo.geojson::jsonb,
+    '{properties}',
+    (geo.geojson::jsonb -> 'properties') || jsonb_build_object(
+      'population', COALESCE(d.population, 0),
+      'province',   geo.orgunit,
+      'fillColor',  jsonb_build_array(
+        LEAST(255, ROUND(255 * COALESCE(d.population, 0)::numeric
+                             / GREATEST(max_val.v, 1))),
+        GREATEST(0, ROUND(120 * (1 - COALESCE(d.population, 0)::numeric
+                                     / GREATEST(max_val.v, 1)))),
+        30,
+        200
+      )
+    )
+  )::text                          AS geojson
+FROM v_orgunit_geojson geo
+CROSS JOIN (
+  SELECT MAX(sub.population) AS v
+  FROM (
+    SELECT ou.uidlevel2 AS prov_uid,
+           ROUND(SUM(a.value)::numeric, 0) AS population
+    FROM analytics a
+    JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
+    JOIN analytics_rs_orgunitstructure ou      ON ou.organisationunituid = a.ou
+    WHERE des.dataelementname ILIKE '%population%'
+    GROUP BY ou.uidlevel2
+  ) sub
+) max_val
+LEFT JOIN (
+  SELECT
+    ou.uidlevel2                       AS prov_uid,
+    ROUND(SUM(a.value)::numeric, 0)    AS population
+  FROM analytics a
+  JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
+  JOIN analytics_rs_orgunitstructure ou     ON ou.organisationunituid = a.ou
+  WHERE des.dataelementname ILIKE '%population%'
+  GROUP BY ou.uidlevel2
+) d ON d.prov_uid = geo.ou_uid
+WHERE geo.ou_level = 2"""
 
 DATASET_SQL = """SELECT
   a.dx AS dataelement_uid,
@@ -533,21 +548,37 @@ def timeseries_line_params(
     }
 
 
-def country_map_params(
+def deck_geojson_params(
     ds_id: int,
-    country: str,
-    entity: str,
-    metric: dict[str, Any],
-    sql_filter: str | None = None,
+    geojson_col: str = "geojson",
+    tooltip_cols: list[str] | None = None,
 ) -> dict[str, Any]:
     return {
         "datasource": f"{ds_id}__table",
-        "viz_type": "country_map",
-        "select_country": country,
-        "entity": entity,
-        "metric": metric,
-        "linear_color_scheme": "superset_seq_1",
-        "adhoc_filters": filters_for(sql_filter),
+        "viz_type": "deck_geojson",
+        "geojson": geojson_col,
+        "row_limit": 10000,
+        "mapbox_style": "mapbox://styles/mapbox/light-v9",
+        "viewport": {
+            "longitude": 0,
+            "latitude": 0,
+            "zoom": 1,
+            "bearing": 0,
+            "pitch": 0,
+        },
+        "autozoom": True,
+        "fill_color_picker": {"r": 0, "g": 0, "b": 0, "a": 0},
+        "stroke_color_picker": {"r": 255, "g": 255, "b": 255, "a": 1},
+        "filled": True,
+        "stroked": True,
+        "extruded": False,
+        "point_radius_fixed": {"type": "fix", "value": 2000},
+        "line_width": 1,
+        "line_width_unit": "pixels",
+        "opacity": 70,
+        "reverse_long_lat": False,
+        "adhoc_filters": [],
+        "js_columns": tooltip_cols or [],
     }
 
 
@@ -623,7 +654,6 @@ F_CLIMATE = (
     "OR dataelement ILIKE '%humidity%' OR dataelement ILIKE '%climate%')"
 )
 F_POPULATION = "dataelement ILIKE '%population%'"
-F_DENGUE = "dataelement ILIKE '%dengue%cases%'"
 F_CASES = (
     "(dataelement ILIKE '%cases%' OR dataelement ILIKE '%incidence%' "
     "OR dataelement ILIKE '%case (%' OR dataelement ILIKE '%cases (%')"
@@ -709,40 +739,41 @@ def build_live_dashboard(
     }
 
 
-def build_dengue_map_dashboard(
+def build_population_map_dashboard(
     geo_ds_id: int, agg_ds_id: int
 ) -> dict[str, Any]:
-    """Dengue choropleth map dashboard. Uses the dhis2_dengue_map virtual
-    dataset for the deck_geojson map chart and the main dhis2_aggregate
-    dataset for the supporting bar/table charts."""
+    """Population choropleth map dashboard. Uses the dhis2_population_map
+    virtual dataset for the deck_geojson map chart and the main
+    dhis2_aggregate dataset for the supporting bar/table charts.
+    Generic: works on any DHIS2 instance with population data and org unit
+    geometry."""
     return {
-        "title": "DHIS2 Dengue Map",
-        "slug": "dhis2-dengue-map",
+        "title": "DHIS2 Population Map",
+        "slug": "dhis2-population-map",
         "charts": [
-            ("dm_map", "Dengue -- Province Choropleth", "country_map",
-             country_map_params(geo_ds_id, "laos", "iso",
-                                metric_sum("total_cases", "cases"))),
-            ("dm_total", "Dengue -- Total Cases", "big_number_total",
-             big_number_params(agg_ds_id, metric_sum("value", "cases"),
-                               "all-time dengue cases reported", F_DENGUE)),
-            ("dm_provs", "Dengue -- Provinces Reporting", "big_number_total",
+            ("pm_map", "Population -- Province Choropleth", "deck_geojson",
+             deck_geojson_params(geo_ds_id, tooltip_cols=["province", "population"])),
+            ("pm_total", "Population -- Reported Total", "big_number_total",
+             big_number_params(agg_ds_id, metric_sum("value", "people"),
+                               "sum of all reported population values", F_POPULATION)),
+            ("pm_provs", "Population -- Provinces Reporting", "big_number_total",
              big_number_params(agg_ds_id,
                                metric_count_distinct("province", "provinces"),
-                               "distinct provinces", F_DENGUE)),
-            ("dm_year", "Dengue -- Cases per Year", "echarts_timeseries_bar",
+                               "distinct provinces", F_POPULATION)),
+            ("pm_year", "Population -- Reported Total by Year", "echarts_timeseries_bar",
              timeseries_bar_params(agg_ds_id, "period_start",
-                                  metric_sum("value", "cases"), F_DENGUE)),
-            ("dm_prov", "Dengue -- Cases by Province", "dist_bar",
+                                  metric_sum("value", "people"), F_POPULATION)),
+            ("pm_prov", "Population -- Reported Total by Province", "dist_bar",
              dist_bar_params(agg_ds_id, ["province"],
-                             metric_sum("value", "cases"), 20, F_DENGUE)),
-            ("dm_tbl", "Dengue -- Province x Year", "table",
+                             metric_sum("value", "people"), 20, F_POPULATION)),
+            ("pm_tbl", "Population -- Province x Year", "table",
              table_params(agg_ds_id, ["province", "year"],
-                          [metric_sum("value", "cases")], 100, F_DENGUE)),
+                          [metric_sum("value", "people")], 100, F_POPULATION)),
         ],
         "layout": [
-            [("dm_map", 6, 80), ("dm_total", 3, 40), ("dm_provs", 3, 40)],
-            [("dm_year", 6, 60), ("dm_prov", 6, 60)],
-            [("dm_tbl", 12, 60)],
+            [("pm_map", 6, 80), ("pm_total", 3, 40), ("pm_provs", 3, 40)],
+            [("pm_year", 6, 60), ("pm_prov", 6, 60)],
+            [("pm_tbl", 12, 60)],
         ],
     }
 
@@ -880,9 +911,9 @@ def main() -> int:
             main_dttm_col=dttm_col,
         )
 
-    # Dengue map dataset (virtual, joins aggregated cases with GeoJSON geometry)
-    dengue_geo_ds_id = sup.upsert_dataset(
-        db_id=db_id, table_name="dhis2_dengue_map", sql=DENGUE_MAP_SQL
+    # Population map dataset (virtual, joins population with GeoJSON geometry)
+    pop_geo_ds_id = sup.upsert_dataset(
+        db_id=db_id, table_name="dhis2_population_map", sql=POPULATION_MAP_SQL
     )
 
     # Build the live-data dashboard now that we have its dataset ids.
@@ -891,10 +922,10 @@ def main() -> int:
         ev_id=live_ids["v_live_event"],
         en_id=live_ids["v_live_enrollment"],
     )
-    dengue_map_dashboard = build_dengue_map_dashboard(
-        geo_ds_id=dengue_geo_ds_id, agg_ds_id=ds_id,
+    population_map_dashboard = build_population_map_dashboard(
+        geo_ds_id=pop_geo_ds_id, agg_ds_id=ds_id,
     )
-    dashboards = build_dashboards(ds_id) + [live_dashboard, dengue_map_dashboard]
+    dashboards = build_dashboards(ds_id) + [live_dashboard, population_map_dashboard]
     print(f"\n[3] Charts and dashboards ({len(dashboards)} dashboards)")
 
     for dash in dashboards:
