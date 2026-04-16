@@ -87,6 +87,96 @@ def apply_views_sql(sql_path: pathlib.Path) -> None:
     print(f"  applied {sql_path.name} via docker exec ({DHIS2_POSTGRES_CONTAINER})")
 
 
+HIERARCHY_PROBE_SQL = """
+WITH chosen AS (
+  SELECT hierarchylevel AS lvl
+  FROM organisationunit
+  WHERE geometry IS NOT NULL AND hierarchylevel > 1
+  GROUP BY hierarchylevel
+  HAVING COUNT(*) >= 2
+  ORDER BY hierarchylevel
+  LIMIT 1
+)
+SELECT
+  (SELECT MAX(hierarchylevel) FROM organisationunit) AS max_lvl,
+  c.lvl                                              AS map_lvl,
+  oul.name                                           AS map_lvl_name
+FROM (SELECT 1) _
+LEFT JOIN chosen c ON true
+LEFT JOIN orgunitlevel oul ON oul.level = c.lvl
+"""
+
+
+def detect_hierarchy(dsn: str) -> tuple[int, int, str]:
+    """Probe DHIS2 postgres for hierarchy shape.
+
+    Returns `(max_level, map_level, map_level_label)`:
+      - `max_level`: the deepest `hierarchylevel` present in `organisationunit`
+        (used to size `level1..levelN` columns in DATASET_SQL).
+      - `map_level`: lowest `hierarchylevel > 1` with >= 2 org units having
+        geometry (used for the choropleth). Falls back to
+        `min(max_level, 2)` if nothing qualifies.
+      - `map_level_label`: the name configured for that level in
+        `orgunitlevel`, or `f"Level {map_level}"` if not set.
+    """
+    def _parse(max_lvl: Any, map_lvl: Any, name: Any) -> tuple[int, int, str]:
+        mx = int(max_lvl) if max_lvl is not None else 1
+        if map_lvl is None:
+            m = min(mx, 2) if mx >= 1 else 1
+        else:
+            m = int(map_lvl)
+        label = (name or "").strip() if isinstance(name, str) else ""
+        return mx, m, (label or f"Level {m}")
+
+    try:
+        import psycopg2  # type: ignore
+    except ImportError:
+        psycopg2 = None  # type: ignore
+
+    if psycopg2 is not None:
+        try:
+            conn = psycopg2.connect(dsn, connect_timeout=3)
+            with conn.cursor() as cur:
+                cur.execute(HIERARCHY_PROBE_SQL)
+                row = cur.fetchone()
+            conn.close()
+            if row:
+                mx, m, label = _parse(row[0], row[1], row[2])
+                print(f"  hierarchy: max_level={mx}, map_level={m} ({label!r}) via psycopg2")
+                return mx, m, label
+        except Exception as exc:
+            print(f"  psycopg2 probe failed ({exc.__class__.__name__}: {exc}), trying docker exec")
+
+    try:
+        proc = subprocess.run(
+            [
+                "docker", "exec", "-i", DHIS2_POSTGRES_CONTAINER,
+                "psql", "-U", "dhis", "-d", "dhis",
+                "-tA", "-F", "|", "-v", "ON_ERROR_STOP=1",
+            ],
+            input=HIERARCHY_PROBE_SQL,
+            text=True,
+            capture_output=True,
+            timeout=10,
+        )
+        if proc.returncode == 0:
+            first_line = proc.stdout.strip().splitlines()[0] if proc.stdout.strip() else ""
+            parts = first_line.split("|")
+            if len(parts) == 3:
+                mx_s, map_s, name = parts
+                mx, m, label = _parse(
+                    mx_s or None, map_s or None, name or None
+                )
+                print(f"  hierarchy: max_level={mx}, map_level={m} ({label!r}) via docker exec")
+                return mx, m, label
+    except Exception as exc:
+        print(f"  docker exec probe failed ({exc.__class__.__name__}: {exc})")
+
+    mx, m, label = 5, 2, "Level 2"
+    print(f"  probe failed; using fallback max_level={mx}, map_level={m} ({label!r})")
+    return mx, m, label
+
+
 def _retry(method, *args, **kwargs):
     """Wrap a httpx request method with retry-on-429 + exponential backoff.
 
@@ -116,16 +206,26 @@ LIVE_DATASETS = [
     ("v_live_trackedentity", "lastupdated"),
 ]
 
-POPULATION_MAP_SQL = """SELECT
+def build_population_map_sql(map_level: int) -> str:
+    """Build the population-choropleth virtual dataset SQL.
+
+    Parameterized by the target hierarchy level: joins `v_orgunit_geojson`
+    (filtered to that level) with a population aggregate rolled up to the
+    same level's UID. The GeoJSON property bag gets `population`, `orgunit`
+    and a graduated `fillColor` array so deck_geojson can shade polygons
+    directly from the data.
+    """
+    uid_col = f"uidlevel{map_level}"
+    return f"""SELECT
   geo.ou_uid,
-  geo.orgunit                      AS province,
+  geo.orgunit                      AS orgunit,
   COALESCE(d.population, 0)        AS population,
   jsonb_set(
     geo.geojson::jsonb,
-    '{properties}',
+    '{{properties}}',
     (geo.geojson::jsonb -> 'properties') || jsonb_build_object(
       'population', COALESCE(d.population, 0),
-      'province',   geo.orgunit,
+      'orgunit',    geo.orgunit,
       'fillColor',  jsonb_build_array(
         LEAST(255, ROUND(255 * COALESCE(d.population, 0)::numeric
                              / GREATEST(max_val.v, 1))),
@@ -140,28 +240,39 @@ FROM v_orgunit_geojson geo
 CROSS JOIN (
   SELECT MAX(sub.population) AS v
   FROM (
-    SELECT ou.uidlevel2 AS prov_uid,
+    SELECT ou.{uid_col} AS ou_uid,
            ROUND(SUM(a.value)::numeric, 0) AS population
     FROM analytics a
     JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
     JOIN analytics_rs_orgunitstructure ou      ON ou.organisationunituid = a.ou
     WHERE des.dataelementname ILIKE '%population%'
-    GROUP BY ou.uidlevel2
+    GROUP BY ou.{uid_col}
   ) sub
 ) max_val
 LEFT JOIN (
   SELECT
-    ou.uidlevel2                       AS prov_uid,
+    ou.{uid_col}                       AS ou_uid,
     ROUND(SUM(a.value)::numeric, 0)    AS population
   FROM analytics a
   JOIN analytics_rs_dataelementstructure des ON des.dataelementuid = a.dx
   JOIN analytics_rs_orgunitstructure ou     ON ou.organisationunituid = a.ou
   WHERE des.dataelementname ILIKE '%population%'
-  GROUP BY ou.uidlevel2
-) d ON d.prov_uid = geo.ou_uid
-WHERE geo.ou_level = 2"""
+  GROUP BY ou.{uid_col}
+) d ON d.ou_uid = geo.ou_uid
+WHERE geo.ou_level = {map_level}"""
 
-DATASET_SQL = """SELECT
+def build_dataset_sql(max_level: int) -> str:
+    """Build the `dhis2_aggregate` virtual dataset SQL.
+
+    Only emits `level1..levelN` columns for N = `max_level`, because the
+    `analytics_rs_orgunitstructure` resource table only contains `namelevelN`
+    columns up to the deepest hierarchy level actually in use — referencing
+    a non-existent level would error on shallower instances.
+    """
+    level_cols = ",\n".join(
+        f"  ou.namelevel{i} AS level{i}" for i in range(1, max_level + 1)
+    )
+    return f"""SELECT
   a.dx AS dataelement_uid,
   COALESCE(des.dataelementname, a.dx) AS dataelement,
   des.valuetype,
@@ -174,11 +285,7 @@ DATASET_SQL = """SELECT
   a.year,
   a.ou AS ou_uid,
   COALESCE(ou.name, a.ou) AS orgunit,
-  ou.namelevel1 AS country,
-  ou.namelevel2 AS province,
-  ou.namelevel3 AS district,
-  ou.namelevel4 AS facility,
-  ou.namelevel5 AS village,
+{level_cols},
   ou.level AS ou_level,
   a.value,
   a.textvalue
@@ -269,10 +376,19 @@ class Superset:
             ds_id = existing["id"]
             update_body: dict[str, Any] = {"schema": schema}
             if sql is not None:
+                # override_columns=true with columns:[] forces Superset to
+                # drop its cached column list so the next fetch re-introspects
+                # from the (possibly new) SQL. Without this, a SQL change that
+                # renames a column leaves the old column list in place and
+                # breaks charts that reference the new name.
                 update_body["sql"] = sql
+                update_body["columns"] = []
             if main_dttm_col is not None:
                 update_body["main_dttm_col"] = main_dttm_col
-            r = _retry(self.client.put, f"/api/v1/dataset/{ds_id}", json=update_body)
+            url = f"/api/v1/dataset/{ds_id}"
+            if sql is not None:
+                url += "?override_columns=true"
+            r = _retry(self.client.put, url, json=update_body)
             r.raise_for_status()
             print(f"  updated dataset {table_name!r} (id={ds_id})")
             return ds_id
@@ -740,35 +856,85 @@ def build_live_dashboard(
 
 
 def build_population_map_dashboard(
-    geo_ds_id: int, agg_ds_id: int
+    geo_ds_id: int, agg_ds_id: int, map_level: int, level_label: str
 ) -> dict[str, Any]:
     """Population choropleth map dashboard. Uses the dhis2_population_map
     virtual dataset for the deck_geojson map chart and the main
     dhis2_aggregate dataset for the supporting bar/table charts.
     Generic: works on any DHIS2 instance with population data and org unit
-    geometry."""
+    geometry. `level_label` is the DHIS2-configured name for `map_level`
+    (e.g. "Province", "Region") or "Level N" if the instance has no
+    configured name."""
+    lvl_col = f"level{map_level}"
     return {
         "title": "DHIS2 Population Map",
         "slug": "dhis2-population-map",
         "charts": [
-            ("pm_map", "Population -- Province Choropleth", "deck_geojson",
-             deck_geojson_params(geo_ds_id, tooltip_cols=["province", "population"])),
-            ("pm_total", "Population -- Reported Total", "big_number_total",
-             big_number_params(agg_ds_id, metric_sum("value", "people"),
-                               "sum of all reported population values", F_POPULATION)),
-            ("pm_provs", "Population -- Provinces Reporting", "big_number_total",
-             big_number_params(agg_ds_id,
-                               metric_count_distinct("province", "provinces"),
-                               "distinct provinces", F_POPULATION)),
-            ("pm_year", "Population -- Reported Total by Year", "echarts_timeseries_bar",
-             timeseries_bar_params(agg_ds_id, "period_start",
-                                  metric_sum("value", "people"), F_POPULATION)),
-            ("pm_prov", "Population -- Reported Total by Province", "dist_bar",
-             dist_bar_params(agg_ds_id, ["province"],
-                             metric_sum("value", "people"), 20, F_POPULATION)),
-            ("pm_tbl", "Population -- Province x Year", "table",
-             table_params(agg_ds_id, ["province", "year"],
-                          [metric_sum("value", "people")], 100, F_POPULATION)),
+            (
+                "pm_map",
+                f"Population -- {level_label} Choropleth",
+                "deck_geojson",
+                deck_geojson_params(
+                    geo_ds_id, tooltip_cols=["orgunit", "population"]
+                ),
+            ),
+            (
+                "pm_total",
+                "Population -- Reported Total",
+                "big_number_total",
+                big_number_params(
+                    agg_ds_id,
+                    metric_sum("value", "people"),
+                    "sum of all reported population values",
+                    F_POPULATION,
+                ),
+            ),
+            (
+                "pm_provs",
+                f"Population -- {level_label}s Reporting",
+                "big_number_total",
+                big_number_params(
+                    agg_ds_id,
+                    metric_count_distinct(lvl_col, f"{level_label.lower()}s"),
+                    f"distinct {level_label.lower()}s",
+                    F_POPULATION,
+                ),
+            ),
+            (
+                "pm_year",
+                "Population -- Reported Total by Year",
+                "echarts_timeseries_bar",
+                timeseries_bar_params(
+                    agg_ds_id,
+                    "period_start",
+                    metric_sum("value", "people"),
+                    F_POPULATION,
+                ),
+            ),
+            (
+                "pm_prov",
+                f"Population -- Reported Total by {level_label}",
+                "dist_bar",
+                dist_bar_params(
+                    agg_ds_id,
+                    [lvl_col],
+                    metric_sum("value", "people"),
+                    20,
+                    F_POPULATION,
+                ),
+            ),
+            (
+                "pm_tbl",
+                f"Population -- {level_label} x Year",
+                "table",
+                table_params(
+                    agg_ds_id,
+                    [lvl_col, "year"],
+                    [metric_sum("value", "people")],
+                    100,
+                    F_POPULATION,
+                ),
+            ),
         ],
         "layout": [
             [("pm_map", 6, 80), ("pm_total", 3, 40), ("pm_provs", 3, 40)],
@@ -778,8 +944,16 @@ def build_population_map_dashboard(
     }
 
 
-def build_dashboards(ds_id: int) -> list[dict[str, Any]]:
-    """Each entry: title, slug, charts (list of (key, name, viz, params)), layout."""
+def build_dashboards(
+    ds_id: int, map_level: int, level_label: str
+) -> list[dict[str, Any]]:
+    """Each entry: title, slug, charts (list of (key, name, viz, params)), layout.
+
+    `map_level` / `level_label` come from `detect_hierarchy` and are used
+    anywhere the dashboards group by or label the "upper-middle" org-unit
+    level — typically provinces / regions / states depending on the instance.
+    """
+    lvl_col = f"level{map_level}"
     return [
         # ─── 1. Aggregate Overview ──────────────────────────────────────
         {
@@ -798,8 +972,8 @@ def build_dashboards(ds_id: int) -> list[dict[str, Any]]:
                  pie_params(ds_id, ["period_type"], metric_count())),
                 ("o_year", "DHIS2 — Data Points per Year", "echarts_timeseries_bar",
                  timeseries_bar_params(ds_id, "period_start", metric_count())),
-                ("o_prov", "DHIS2 — Province Reporting Volume", "table",
-                 table_params(ds_id, ["province"], [metric_count(), metric_avg("value", "avg_value")], 50)),
+                ("o_prov", f"DHIS2 — {level_label} Reporting Volume", "table",
+                 table_params(ds_id, [lvl_col], [metric_count(), metric_avg("value", "avg_value")], 50)),
             ],
             "layout": [
                 [("o_total", 4, 50), ("o_des", 4, 50), ("o_ous", 4, 50)],
@@ -823,8 +997,8 @@ def build_dashboards(ds_id: int) -> list[dict[str, Any]]:
                  dist_bar_params(ds_id, ["dataelement"], metric_count(), 20, F_CLIMATE)),
                 ("c_year", "Climate — Average Value by Year", "echarts_timeseries_line",
                  timeseries_line_params(ds_id, "period_start", metric_avg("value", "avg_value"), F_CLIMATE, "P1Y", ["dataelement"])),
-                ("c_prov", "Climate — Reading Volume by Province", "table",
-                 table_params(ds_id, ["province"], [metric_count(), metric_avg("value", "avg_value")], 30, F_CLIMATE)),
+                ("c_prov", f"Climate — Reading Volume by {level_label}", "table",
+                 table_params(ds_id, [lvl_col], [metric_count(), metric_avg("value", "avg_value")], 30, F_CLIMATE)),
             ],
             "layout": [
                 [("c_rows", 4, 50), ("c_des", 4, 50), ("c_ous", 4, 50)],
@@ -846,10 +1020,10 @@ def build_dashboards(ds_id: int) -> list[dict[str, Any]]:
                  big_number_params(ds_id, metric_count_distinct("dataelement_uid", "indicators"), "distinct population data elements", F_POPULATION)),
                 ("p_year", "Population — Reported Total by Year", "echarts_timeseries_bar",
                  timeseries_bar_params(ds_id, "period_start", metric_sum("value", "people"), F_POPULATION)),
-                ("p_prov", "Population — Reported Total by Province", "dist_bar",
-                 dist_bar_params(ds_id, ["province"], metric_sum("value", "people"), 25, F_POPULATION)),
-                ("p_tbl", "Population — By Province and Year", "table",
-                 table_params(ds_id, ["province", "year"], [metric_sum("value", "people")], 100, F_POPULATION)),
+                ("p_prov", f"Population — Reported Total by {level_label}", "dist_bar",
+                 dist_bar_params(ds_id, [lvl_col], metric_sum("value", "people"), 25, F_POPULATION)),
+                ("p_tbl", f"Population — By {level_label} and Year", "table",
+                 table_params(ds_id, [lvl_col, "year"], [metric_sum("value", "people")], 100, F_POPULATION)),
             ],
             "layout": [
                 [("p_rows", 4, 50), ("p_sum", 4, 50), ("p_des", 4, 50)],
@@ -873,8 +1047,8 @@ def build_dashboards(ds_id: int) -> list[dict[str, Any]]:
                  dist_bar_params(ds_id, ["dataelement"], metric_sum("value", "cases"), 15, F_CASES)),
                 ("d_year", "Disease — Cases per Year", "echarts_timeseries_bar",
                  timeseries_bar_params(ds_id, "period_start", metric_sum("value", "cases"), F_CASES)),
-                ("d_prov", "Disease — Cases by Province", "dist_bar",
-                 dist_bar_params(ds_id, ["province"], metric_sum("value", "cases"), 25, F_CASES)),
+                ("d_prov", f"Disease — Cases by {level_label}", "dist_bar",
+                 dist_bar_params(ds_id, [lvl_col], metric_sum("value", "cases"), 25, F_CASES)),
             ],
             "layout": [
                 [("d_rows", 4, 50), ("d_sum", 4, 50), ("d_des", 4, 50)],
@@ -900,8 +1074,13 @@ def main() -> int:
     print("\n[1] Live SQL views in DHIS2 postgres")
     apply_views_sql(VIEWS_SQL_PATH)
 
-    print("\n[2] Datasets")
-    ds_id = sup.upsert_dataset(db_id=db_id, table_name=DATASET_NAME, sql=DATASET_SQL)
+    print("\n[2] Probing DHIS2 hierarchy shape")
+    max_level, map_level, level_label = detect_hierarchy(DHIS2_POSTGRES_DSN)
+
+    print("\n[3] Datasets")
+    ds_id = sup.upsert_dataset(
+        db_id=db_id, table_name=DATASET_NAME, sql=build_dataset_sql(max_level)
+    )
     live_ids: dict[str, int] = {}
     for table_name, dttm_col in LIVE_DATASETS:
         live_ids[table_name] = sup.upsert_dataset(
@@ -913,7 +1092,9 @@ def main() -> int:
 
     # Population map dataset (virtual, joins population with GeoJSON geometry)
     pop_geo_ds_id = sup.upsert_dataset(
-        db_id=db_id, table_name="dhis2_population_map", sql=POPULATION_MAP_SQL
+        db_id=db_id,
+        table_name="dhis2_population_map",
+        sql=build_population_map_sql(map_level),
     )
 
     # Build the live-data dashboard now that we have its dataset ids.
@@ -923,10 +1104,16 @@ def main() -> int:
         en_id=live_ids["v_live_enrollment"],
     )
     population_map_dashboard = build_population_map_dashboard(
-        geo_ds_id=pop_geo_ds_id, agg_ds_id=ds_id,
+        geo_ds_id=pop_geo_ds_id,
+        agg_ds_id=ds_id,
+        map_level=map_level,
+        level_label=level_label,
     )
-    dashboards = build_dashboards(ds_id) + [live_dashboard, population_map_dashboard]
-    print(f"\n[3] Charts and dashboards ({len(dashboards)} dashboards)")
+    dashboards = (
+        build_dashboards(ds_id, map_level, level_label)
+        + [live_dashboard, population_map_dashboard]
+    )
+    print(f"\n[4] Charts and dashboards ({len(dashboards)} dashboards)")
 
     for dash in dashboards:
         print(f"\n  --- {dash['title']} ({dash['slug']}) ---")
